@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Biovarmenne</string>
+    <string name="app_subtitle">Mobiilivarmenne with fingerprint</string>
+    <string name="status_pin_saved">✓ PIN code saved</string>
+    <string name="status_pin_missing">⚠ PIN code not set</string>
+    <string name="pin_input_label">PIN code (4&#8211;8 digits)</string>
+    <string name="pin_confirm_label">Confirm PIN code</string>
+    <string name="error_pin_too_short">PIN code must be at least 4 digits</string>
+    <string name="error_pin_mismatch">PIN codes do not match</string>
+    <string name="success_pin_saved">PIN code saved successfully!</string>
+    <string name="button_save_pin">Save PIN code</string>
+    <string name="button_clear_pin">Remove PIN code</string>
+    <string name="status_pin_cleared">PIN code removed</string>
+    <string name="button_accessibility_settings">Open accessibility settings</string>
+    <string name="accessibility_reminder">Remember to enable Biovarmenne in accessibility settings</string>
+    <string name="dialog_accessibility_title">Accessibility service usage</string>
+    <string name="dialog_accessibility_message">Biovarmenne needs the accessibility service to detect when Mobiilivarmenne requests a PIN code and to fill it in automatically after fingerprint authentication.\n\nThe app only reads the Mobiilivarmenne screen and does not collect or transmit any data.</string>
+    <string name="dialog_confirm">I understand, continue</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="biometric_title">Biovarmenne</string>
+    <string name="biometric_subtitle">Authenticate with fingerprint</string>
+    <string name="biometric_cancel">Cancel</string>
+    <string name="accessibility_service_description">Biovarmenne detects the Mobiilivarmenne PIN request and fills it in automatically using your fingerprint.</string>
+    <string name="status_battery_unrestricted">✓ Battery optimization disabled</string>
+    <string name="status_battery_restricted">⚠ Battery optimization may stop the service</string>
+    <string name="button_battery_settings">Disable battery optimization</string>
+    <string name="status_accessibility_enabled">✓ Accessibility service is running</string>
+    <string name="status_accessibility_disabled">⚠ Accessibility service is not enabled</string>
+</resources>
