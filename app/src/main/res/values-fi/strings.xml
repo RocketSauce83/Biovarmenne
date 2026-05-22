@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Biovarmenne</string>
+    <string name="app_subtitle">Mobiilivarmenne sormenjäljellä</string>
+    <string name="status_pin_saved">✓ Tunnusluku tallennettu</string>
+    <string name="status_pin_missing">⚠ Tunnuslukua ei ole asetettu</string>
+    <string name="pin_input_label">Tunnusluku (4&#8211;8 numeroa)</string>
+    <string name="pin_confirm_label">Vahvista tunnusluku</string>
+    <string name="error_pin_too_short">Tunnusluvun on oltava vähintään 4 numeroa</string>
+    <string name="error_pin_mismatch">Tunnusluvut eivät täsmää</string>
+    <string name="success_pin_saved">Tunnusluku tallennettu onnistuneesti!</string>
+    <string name="button_save_pin">Tallenna tunnusluku</string>
+    <string name="button_clear_pin">Poista tunnusluku</string>
+    <string name="status_pin_cleared">Tunnusluku poistettu</string>
+    <string name="button_accessibility_settings">Avaa esteettömyysasetukset</string>
+    <string name="accessibility_reminder">Muista ottaa Biovarmenne käyttöön esteettömyysasetuksissa</string>
+    <string name="dialog_accessibility_title">Esteettömyyspalvelun käyttö</string>
+    <string name="dialog_accessibility_message">Biovarmenne tarvitsee esteettömyyspalvelun havaitakseen, milloin Mobiilivarmenne pyytää tunnuslukua, ja syöttääkseen sen automaattisesti sormenjälkitunnistuksen jälkeen.\n\nSovellus lukee vain Mobiilivarmenne-sovelluksen näyttöä eikä kerää tai lähetä mitään tietoja.</string>
+    <string name="dialog_confirm">Ymmärrän, jatka</string>
+    <string name="dialog_cancel">Peruuta</string>
+    <string name="biometric_title">Biovarmenne</string>
+    <string name="biometric_subtitle">Tunnistaudu sormenjäljellä</string>
+    <string name="biometric_cancel">Peruuta</string>
+    <string name="accessibility_service_description">Biovarmenne tunnistaa Mobiilivarmenne-tunnuslukupyynnön ja täyttää sen automaattisesti sormenjäljen avulla.</string>
+    <string name="status_battery_unrestricted">✓ Akun optimointi ei käytössä</string>
+    <string name="status_battery_restricted">⚠ Akun optimointi saattaa pysäyttää palvelun</string>
+    <string name="button_battery_settings">Poista akun optimointi käytöstä</string>
+    <string name="status_accessibility_enabled">✓ Esteettömyyspalvelu on käynnissä</string>
+    <string name="status_accessibility_disabled">⚠ Esteettömyyspalvelu ei ole käytössä</string>
+</resources>
