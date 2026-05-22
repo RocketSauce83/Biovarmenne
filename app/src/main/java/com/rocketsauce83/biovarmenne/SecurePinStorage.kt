@@ -51,7 +51,7 @@ class SecurePinStorage(context: Context) {
     fun getPin(): String? {
         return try {
             securePrefs.getString(PIN_KEY, null)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -59,7 +59,7 @@ class SecurePinStorage(context: Context) {
     fun hasPin(): Boolean {
         return try {
             securePrefs.contains(PIN_KEY)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

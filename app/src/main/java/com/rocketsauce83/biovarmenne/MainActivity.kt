@@ -108,7 +108,7 @@ fun BiovarmenneApp(
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                 isBatteryOptimizationIgnored =
                     powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
-                isAccessibilityServiceEnabled = isAccessibilityServiceEnabled(context) // 👈 add this
+                isAccessibilityServiceEnabled = isAccessibilityServiceEnabled(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
