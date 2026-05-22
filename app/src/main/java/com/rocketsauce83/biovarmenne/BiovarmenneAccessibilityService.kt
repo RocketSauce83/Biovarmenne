@@ -71,7 +71,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
         android.util.Log.d("Biovarmenne", "Event received: ${event.packageName}")
         if (event.packageName != STK_PACKAGE) return
         if (isBiometricPromptShowing) return
-        if (isCancelling) return  // 👈 add this
+        if (isCancelling) return
 
         val rootNode = rootInActiveWindow ?: return
 
