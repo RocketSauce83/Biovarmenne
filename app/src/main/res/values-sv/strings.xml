@@ -2,16 +2,16 @@
 <resources>
     <string name="app_name">Biovarmenne</string>
     <string name="app_subtitle">Mobiilivarmenne med fingeravtryck</string>
-    <string name="status_pin_saved">✓ PIN-kod sparad</string>
-    <string name="status_pin_missing">⚠ PIN-kod har inte angetts</string>
-    <string name="pin_input_label">PIN-kod (4&#8211;8 siffror)</string>
-    <string name="pin_confirm_label">Bekräfta PIN-kod</string>
+    <string name="status_pin_saved">✓ Mobiilivarmenne PIN-kod sparad</string>
+    <string name="status_pin_missing">⚠ Mobiilivarmenne PIN-kod har inte angetts</string>
+    <string name="pin_input_label">Mobiilivarmenne PIN-kod (4&#8211;8 siffror)</string>
+    <string name="pin_confirm_label">Bekräfta Mobiilivarmenne PIN-kod</string>
     <string name="error_pin_too_short">PIN-koden måste vara minst 4 siffror</string>
     <string name="error_pin_mismatch">PIN-koderna stämmer inte överens</string>
-    <string name="success_pin_saved">PIN-koden har sparats!</string>
-    <string name="button_save_pin">Spara PIN-kod</string>
-    <string name="button_clear_pin">Ta bort PIN-kod</string>
-    <string name="status_pin_cleared">PIN-kod borttagen</string>
+    <string name="success_pin_saved">Mobiilivarmenne PIN-kod har sparats!</string>
+    <string name="button_save_pin">Spara Mobiilivarmenne PIN-kod</string>
+    <string name="button_clear_pin">Ta bort Mobiilivarmenne PIN-kod</string>
+    <string name="status_pin_cleared">Mobiilivarmenne PIN-kod borttagen</string>
     <string name="button_accessibility_settings">Öppna tillgänglighetsinställningar</string>
     <string name="accessibility_reminder">Kom ihåg att aktivera Biovarmenne i tillgänglighetsinställningarna</string>
     <string name="dialog_accessibility_title">Användning av tillgänglighetstjänst</string>
@@ -27,4 +27,7 @@
     <string name="button_battery_settings">Inaktivera batterioptimering</string>
     <string name="status_accessibility_enabled">✓ Tillgänglighetstjänsten körs</string>
     <string name="status_accessibility_disabled">⚠ Tillgänglighetstjänsten är inte aktiverad</string>
+    <string name="notification_wrong_pin_title">Fel Mobiilivarmenne PIN-kod!</string>
+    <string name="notification_wrong_pin_message">Tryck för att uppdatera din PIN-kod i Biovarmenne</string>
+    <string name="pin_input_helper">Ange PIN-koden du använder med Mobiilivarmenne-tjänsten</string>
 </resources>

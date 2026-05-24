@@ -1,6 +1,9 @@
 package com.rocketsauce83.biovarmenne
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
@@ -31,14 +34,26 @@ class MainActivity : ComponentActivity() {
 
     private val batteryOptimizationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ) {
-        // UI will recompose automatically when returning
-    }
+    ) {}
 
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {}
+
+    @SuppressLint("BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pinStorage = SecurePinStorage(this)
         enableEdgeToEdge()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            }
+        }
 
         setContent {
             BiovarmenneTheme {
@@ -62,12 +77,9 @@ class MainActivity : ComponentActivity() {
 }
 
 private fun isAccessibilityServiceEnabled(context: android.content.Context): Boolean {
-    val accessibilityManager = context.getSystemService(
-        android.content.Context.ACCESSIBILITY_SERVICE
-    ) as android.view.accessibility.AccessibilityManager
-    val enabledServices = android.provider.Settings.Secure.getString(
+    val enabledServices = Settings.Secure.getString(
         context.contentResolver,
-        android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
     ) ?: return false
     return enabledServices.contains(context.packageName)
 }
@@ -97,14 +109,9 @@ fun BiovarmenneApp(
         mutableStateOf(isAccessibilityServiceEnabled(context))
     }
 
-    // Refresh battery status when app resumes
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                isBatteryOptimizationIgnored =
-                    powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
-            }
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                 isBatteryOptimizationIgnored =
                     powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
@@ -163,7 +170,6 @@ fun BiovarmenneApp(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // PIN status card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -186,7 +192,6 @@ fun BiovarmenneApp(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Battery optimization status card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -211,7 +216,6 @@ fun BiovarmenneApp(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Accessibility status card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -236,7 +240,6 @@ fun BiovarmenneApp(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // PIN input fields
             val ePinTooShort = stringResource(R.string.error_pin_too_short)
             val ePinMismatch = stringResource(R.string.error_pin_mismatch)
             val sPinSaved = stringResource(R.string.success_pin_saved)
@@ -248,6 +251,7 @@ fun BiovarmenneApp(
                     if (it.length <= 8 && it.all { c -> c.isDigit() }) pin = it
                 },
                 label = { Text(stringResource(R.string.pin_input_label)) },
+                supportingText = { Text(stringResource(R.string.pin_input_helper)) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 singleLine = true,
@@ -341,17 +345,15 @@ fun BiovarmenneApp(
             }
 
             if (!isBatteryOptimizationIgnored) {
-                Spacer(modifier = Modifier.height(8.dp))
-
                 OutlinedButton(
                     onClick = onOpenBatterySettings,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(stringResource(R.string.button_battery_settings))
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             if (!isAccessibilityServiceEnabled) {
                 Text(

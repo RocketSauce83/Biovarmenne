@@ -2,22 +2,32 @@ package com.rocketsauce83.biovarmenne
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+@SuppressLint("AccessibilityPolicy")
 class BiovarmenneAccessibilityService : AccessibilityService() {
 
     companion object {
         private const val STK_PACKAGE = "com.android.stk"
+        private const val NOTIFICATION_CHANNEL_ID = "biovarmenne_wrong_pin"
+        private const val NOTIFICATION_ID = 1001
         private val PIN_PROMPT_TEXTS = listOf(
             "Anna tunnusluku",
             "Ange PIN-kod",
@@ -33,6 +43,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         pinStorage = SecurePinStorage(this)
+        createNotificationChannel()
 
         serviceScope.launch {
             BiovarmenneEvents.fillPin.collect { pin ->
@@ -67,8 +78,22 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
         return super.onUnbind(intent)
     }
 
+    private fun createNotificationChannel() {
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID,
+            "Biovarmenne",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Biovarmenne PIN notifications"
+        }
+        getSystemService(NotificationManager::class.java)
+            .createNotificationChannel(channel)
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        android.util.Log.d("Biovarmenne", "Event received: ${event.packageName}")
+        if (BuildConfig.DEBUG) {
+            android.util.Log.d("Biovarmenne", "Event received: ${event.packageName}")
+        }
         if (event.packageName != STK_PACKAGE) return
         if (isBiometricPromptShowing) return
         if (isCancelling) return
@@ -141,13 +166,57 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
                 handler.postDelayed({
                     clickOkButton(rootNode)
                     handler.postDelayed({
-                        isBiometricPromptShowing = false
-                    }, 2000)
+                        checkIfPinWasWrong()
+                    }, 3000)
                 }, 300)
             }
         }
 
         handler.postDelayed(runnable, 300)
+    }
+
+    private fun checkIfPinWasWrong() {
+        val rootNode = rootInActiveWindow ?: run {
+            isBiometricPromptShowing = false
+            return
+        }
+
+        if (rootNode.packageName?.toString() == STK_PACKAGE &&
+            isPinPromptVisible(rootNode)) {
+            isBiometricPromptShowing = false
+            showWrongPinNotification()
+        } else {
+            isBiometricPromptShowing = false
+        }
+    }
+
+    private fun showWrongPinNotification() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(getString(R.string.notification_wrong_pin_title))
+            .setContentText(getString(R.string.notification_wrong_pin_message))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification)
+            }
+        } else {
+            NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification)
+        }
     }
 
     private fun findInputField(rootNode: AccessibilityNodeInfo): AccessibilityNodeInfo? {
@@ -193,7 +262,6 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
                 val packageName = rootNode.packageName?.toString()
 
                 if (packageName != STK_PACKAGE) {
-                    // BiometricPromptActivity still in foreground, wait for it to finish
                     if (attempts < maxAttempts) handler.postDelayed(this, 200)
                     else isBiometricPromptShowing = false
                     return
@@ -204,7 +272,6 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
                     val nodes = rootNode.findAccessibilityNodeInfosByText(text)
                     nodes.firstOrNull()?.let { node ->
                         node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        // 👇 Delay reset to let STK fully close first
                         handler.postDelayed({
                             isCancelling = false
                             isBiometricPromptShowing = false
@@ -217,7 +284,6 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
             }
         }
 
-        // Start immediately
         handler.post(runnable)
     }
 

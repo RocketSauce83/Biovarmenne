@@ -2,16 +2,16 @@
 <resources>
     <string name="app_name">Biovarmenne</string>
     <string name="app_subtitle">Mobiilivarmenne sormenjäljellä</string>
-    <string name="status_pin_saved">✓ Tunnusluku tallennettu</string>
-    <string name="status_pin_missing">⚠ Tunnuslukua ei ole asetettu</string>
-    <string name="pin_input_label">Tunnusluku (4&#8211;8 numeroa)</string>
-    <string name="pin_confirm_label">Vahvista tunnusluku</string>
+    <string name="status_pin_saved">✓ Mobiilivarmenne-tunnusluku tallennettu</string>
+    <string name="status_pin_missing">⚠ Mobiilivarmenne-tunnuslukua ei ole asetettu</string>
+    <string name="pin_input_label">Mobiilivarmenne-tunnusluku (4&#8211;8 numeroa)</string>
+    <string name="pin_confirm_label">Vahvista Mobiilivarmenne-tunnusluku</string>
     <string name="error_pin_too_short">Tunnusluvun on oltava vähintään 4 numeroa</string>
     <string name="error_pin_mismatch">Tunnusluvut eivät täsmää</string>
-    <string name="success_pin_saved">Tunnusluku tallennettu onnistuneesti!</string>
-    <string name="button_save_pin">Tallenna tunnusluku</string>
-    <string name="button_clear_pin">Poista tunnusluku</string>
-    <string name="status_pin_cleared">Tunnusluku poistettu</string>
+    <string name="success_pin_saved">Mobiilivarmenne-tunnusluku tallennettu onnistuneesti!</string>
+    <string name="button_save_pin">Tallenna Mobiilivarmenne-tunnusluku</string>
+    <string name="button_clear_pin">Poista Mobiilivarmenne-tunnusluku</string>
+    <string name="status_pin_cleared">Mobiilivarmenne-tunnusluku poistettu</string>
     <string name="button_accessibility_settings">Avaa esteettömyysasetukset</string>
     <string name="accessibility_reminder">Muista ottaa Biovarmenne käyttöön esteettömyysasetuksissa</string>
     <string name="dialog_accessibility_title">Esteettömyyspalvelun käyttö</string>
@@ -27,4 +27,7 @@
     <string name="button_battery_settings">Poista akun optimointi käytöstä</string>
     <string name="status_accessibility_enabled">✓ Esteettömyyspalvelu on käynnissä</string>
     <string name="status_accessibility_disabled">⚠ Esteettömyyspalvelu ei ole käytössä</string>
+    <string name="notification_wrong_pin_title">Väärä Mobiilivarmenne-tunnusluku!</string>
+    <string name="notification_wrong_pin_message">Napauta päivittääksesi tunnuslukusi Biovarmenteessa</string>
+    <string name="pin_input_helper">Syötä PIN-koodi, jota käytät Mobiilivarmenne-palvelussa</string>
 </resources>
