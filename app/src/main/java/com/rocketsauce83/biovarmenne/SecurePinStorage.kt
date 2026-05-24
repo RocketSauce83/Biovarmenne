@@ -3,21 +3,40 @@ package com.rocketsauce83.biovarmenne
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.security.keystore.UserNotAuthenticatedException
+import android.util.Base64
 import androidx.core.content.edit
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
 class SecurePinStorage(context: Context) {
 
     companion object {
+        private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
         private const val KEY_ALIAS = "biovarmenne_pin_key"
         private const val PREFS_FILE = "biovarmenne_secure_prefs"
         private const val PIN_KEY = "user_pin"
+        private const val IV_KEY = "user_pin_iv"
+        private const val TRANSFORMATION = "AES/GCM/NoPadding"
+        private const val GCM_TAG_LENGTH = 128
     }
 
-    private val masterKey = MasterKey.Builder(context, KEY_ALIAS)
-        .setKeyGenParameterSpec(
+    private val prefs = context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE)
+
+    private fun getOrCreateKey(): SecretKey {
+        val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
+
+        // Return existing key if available
+        keyStore.getKey(KEY_ALIAS, null)?.let { return it as SecretKey }
+
+        // Create new key
+        val keyGenerator = KeyGenerator.getInstance(
+            KeyProperties.KEY_ALGORITHM_AES,
+            KEYSTORE_PROVIDER
+        )
+        keyGenerator.init(
             KeyGenParameterSpec.Builder(
                 KEY_ALIAS,
                 KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
@@ -32,41 +51,78 @@ class SecurePinStorage(context: Context) {
                 )
                 .build()
         )
-        .build()
-
-    private val securePrefs = EncryptedSharedPreferences.create(
-        context,
-        PREFS_FILE,
-        masterKey,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+        return keyGenerator.generateKey()
+    }
 
     fun savePin(pin: String) {
-        securePrefs.edit {
-            putString(PIN_KEY, pin)
+        try {
+            val key = getOrCreateKey()
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.ENCRYPT_MODE, key)
+
+            val iv = cipher.iv
+            val encrypted = cipher.doFinal(pin.toByteArray(Charsets.UTF_8))
+
+            prefs.edit {
+                putString(PIN_KEY, Base64.encodeToString(encrypted, Base64.DEFAULT))
+                putString(IV_KEY, Base64.encodeToString(iv, Base64.DEFAULT))
+            }
+        } catch (e: Exception) {
+            // Encryption failed
         }
     }
 
     fun getPin(): String? {
         return try {
-            securePrefs.getString(PIN_KEY, null)
-        } catch (_: Exception) {
+            val encryptedPin = prefs.getString(PIN_KEY, null) ?: return null
+            val ivString = prefs.getString(IV_KEY, null) ?: return null
+
+            val key = getOrCreateKey()
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            val iv = Base64.decode(ivString, Base64.DEFAULT)
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH, iv))
+
+            val decrypted = cipher.doFinal(Base64.decode(encryptedPin, Base64.DEFAULT))
+            String(decrypted, Charsets.UTF_8)
+        } catch (e: Exception) {
             null
         }
     }
 
     fun hasPin(): Boolean {
-        return try {
-            securePrefs.contains(PIN_KEY)
-        } catch (_: Exception) {
-            false
-        }
+        return prefs.contains(PIN_KEY)
     }
 
     fun clearPin() {
-        securePrefs.edit {
+        prefs.edit {
             remove(PIN_KEY)
+            remove(IV_KEY)
+        }
+        // Also delete the keystore key
+        try {
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
+            if (keyStore.containsAlias(KEY_ALIAS)) {
+                keyStore.deleteEntry(KEY_ALIAS)
+            }
+        } catch (e: Exception) {
+            // Key deletion failed
+        }
+    }
+
+    fun migrateIfNeeded() {
+        val hasNewFormat = prefs.contains(IV_KEY)
+        val hasOldFormat = prefs.contains(PIN_KEY) && !hasNewFormat
+
+        if (hasOldFormat) {
+            prefs.edit {
+                clear()
+            }
+            try {
+                val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
+                keyStore.deleteEntry(KEY_ALIAS)
+            } catch (e: Exception) {
+                // ignore
+            }
         }
     }
 }
