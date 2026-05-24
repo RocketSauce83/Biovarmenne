@@ -30,4 +30,8 @@
     <string name="notification_wrong_pin_title">Fel Mobiilivarmenne PIN-kod!</string>
     <string name="notification_wrong_pin_message">Tryck för att uppdatera din PIN-kod i Biovarmenne</string>
     <string name="pin_input_helper">Ange PIN-koden du använder med Mobiilivarmenne-tjänsten</string>
+    <string name="status_popup_required_miui">⚠ Xiaomi-enheter kräver behörigheten \"Öppna nya fönster när de körs i bakgrunden\" för att visa PIN-frågan.</string>
+    <string name="button_popup_settings">Öppna Appinfo -> Andra behörigheter</string>
+    <string name="status_autostart_required">⚠ Autostart krävs på Xiaomi-enheter för att hålla bakgrundstjänsten vid liv</string>
+    <string name="button_autostart_settings">Aktivera autostart</string>
 </resources>

@@ -30,4 +30,8 @@
     <string name="notification_wrong_pin_title">Wrong Mobiilivarmenne PIN!</string>
     <string name="notification_wrong_pin_message">Tap to update your PIN in Biovarmenne</string>
     <string name="pin_input_helper">Enter the PIN code you use with Mobiilivarmenne service</string>
+    <string name="status_popup_required_miui">⚠ Xiaomi devices require the \"Display pop-up windows while running in the background\" permission to show the PIN prompt.</string>
+    <string name="button_popup_settings">Open App Info -> Other Permissions</string>
+    <string name="status_autostart_required">⚠ Autostart is required on Xiaomi devices to keep the background service alive</string>
+    <string name="button_autostart_settings">Enable Autostart</string>
 </resources>

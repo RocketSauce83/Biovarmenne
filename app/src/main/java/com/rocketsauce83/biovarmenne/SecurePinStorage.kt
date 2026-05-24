@@ -67,7 +67,7 @@ class SecurePinStorage(context: Context) {
                 putString(PIN_KEY, Base64.encodeToString(encrypted, Base64.DEFAULT))
                 putString(IV_KEY, Base64.encodeToString(iv, Base64.DEFAULT))
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Encryption failed
         }
     }
@@ -84,7 +84,7 @@ class SecurePinStorage(context: Context) {
 
             val decrypted = cipher.doFinal(Base64.decode(encryptedPin, Base64.DEFAULT))
             String(decrypted, Charsets.UTF_8)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -104,7 +104,7 @@ class SecurePinStorage(context: Context) {
             if (keyStore.containsAlias(KEY_ALIAS)) {
                 keyStore.deleteEntry(KEY_ALIAS)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Key deletion failed
         }
     }
@@ -120,7 +120,7 @@ class SecurePinStorage(context: Context) {
             try {
                 val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
                 keyStore.deleteEntry(KEY_ALIAS)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // ignore
             }
         }

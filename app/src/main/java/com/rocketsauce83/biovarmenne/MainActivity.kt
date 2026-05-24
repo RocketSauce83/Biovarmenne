@@ -33,6 +33,8 @@ import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 class MainActivity : ComponentActivity() {
 
@@ -64,7 +66,8 @@ class MainActivity : ComponentActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
-                android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
                 notificationPermissionLauncher.launch(
                     Manifest.permission.POST_NOTIFICATIONS
                 )
@@ -85,6 +88,31 @@ class MainActivity : ComponentActivity() {
                                 "package:$packageName".toUri()
                             )
                         )
+                    },
+                    onOpenAppInfoSettings = {
+                        // Navigates directly to the App Info screen shown in your screenshot
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = "package:$packageName".toUri()
+                        }
+                        startActivity(intent)
+                    },
+                    onOpenAutostartSettings = { // 👈 Add this block
+                        try {
+                            val intent = Intent()
+                            intent.component = android.content.ComponentName(
+                                "com.miui.securitycenter",
+                                "com.miui.permcenter.autostart.AutoStartManagementActivity"
+                            )
+                            startActivity(intent)
+                        } catch (_: Exception) {
+                            // Fallback to standard app settings if the MIUI activity isn't found
+                            startActivity(
+                                Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    "package:$packageName".toUri()
+                                )
+                            )
+                        }
                     }
                 )
             }
@@ -129,11 +157,20 @@ private fun isAccessibilityServiceEnabled(context: android.content.Context): Boo
     return enabledServices.contains(context.packageName)
 }
 
+private fun isMiui(): Boolean {
+    return Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true) ||
+            Build.BRAND.equals("Xiaomi", ignoreCase = true) ||
+            Build.BRAND.equals("POCO", ignoreCase = true) ||
+            Build.BRAND.equals("Redmi", ignoreCase = true)
+}
+
 @Composable
 fun BiovarmenneApp(
     pinStorage: SecurePinStorage,
     onOpenAccessibilitySettings: () -> Unit,
-    onOpenBatterySettings: () -> Unit
+    onOpenBatterySettings: () -> Unit,
+    onOpenAppInfoSettings: () -> Unit,
+    onOpenAutostartSettings: () -> Unit
 ) {
     val context = LocalContext.current
     var pin by remember { mutableStateOf("") }
@@ -142,6 +179,8 @@ fun BiovarmenneApp(
     var statusMessage by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     var showDisclosureDialog by remember { mutableStateOf(false) }
+
+    val isMiuiDevice = isMiui()
 
     val powerManager = context.getSystemService<PowerManager>()
     var isBatteryOptimizationIgnored by remember {
@@ -193,7 +232,8 @@ fun BiovarmenneApp(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 32.dp),
+                .padding(horizontal = 32.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -281,6 +321,38 @@ fun BiovarmenneApp(
                     else
                         MaterialTheme.colorScheme.onErrorContainer
                 )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // MIUI info cards — use tertiaryContainer color
+            if (isMiuiDevice) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer  // 👈 different color
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.status_popup_required_miui),
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer  // 👈 different color
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.status_autostart_required),
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -408,6 +480,26 @@ fun BiovarmenneApp(
                     textAlign = TextAlign.Center
                 )
             }
+
+            if (isMiuiDevice) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onOpenAppInfoSettings,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.button_popup_settings))
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onOpenAutostartSettings,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.button_autostart_settings))
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

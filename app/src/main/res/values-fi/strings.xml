@@ -30,4 +30,8 @@
     <string name="notification_wrong_pin_title">Väärä Mobiilivarmenne-tunnusluku!</string>
     <string name="notification_wrong_pin_message">Napauta päivittääksesi tunnuslukusi Biovarmenteessa</string>
     <string name="pin_input_helper">Syötä PIN-koodi, jota käytät Mobiilivarmenne-palvelussa</string>
+    <string name="status_popup_required_miui">⚠ Xiaomi-laitteet vaativat \"Avaa uudet ikkunat taustalla käynnissä\" -luvan, jotta PIN-kysely voidaan näyttää.</string>
+    <string name="button_popup_settings">Avaa Sovelluksen tiedot -> Muut oikeudet</string>
+    <string name="status_autostart_required">⚠ Automaattinen käynnistys taustalla vaaditaan Xiaomi-laitteilla, jotta palvelu pysyy käynnissä</string>
+    <string name="button_autostart_settings">Salli automaattinen käynnistys</string>
 </resources>
