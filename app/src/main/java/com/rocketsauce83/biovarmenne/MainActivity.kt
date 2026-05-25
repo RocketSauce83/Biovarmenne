@@ -227,6 +227,8 @@ fun BiovarmenneApp(
         mutableStateOf(isAccessibilityServiceEnabled(context))
     }
 
+    var isEnabled by remember { mutableStateOf(pinStorage.isEnabled()) }
+
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
@@ -290,7 +292,29 @@ fun BiovarmenneApp(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.toggle_enabled),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Switch(
+                    checked = isEnabled,
+                    onCheckedChange = { enabled ->
+                        isEnabled = enabled
+                        pinStorage.setEnabled(enabled)
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),

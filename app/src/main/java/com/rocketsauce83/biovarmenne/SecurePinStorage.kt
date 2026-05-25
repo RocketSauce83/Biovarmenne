@@ -54,6 +54,14 @@ class SecurePinStorage(context: Context) {
         return keyGenerator.generateKey()
     }
 
+    fun setEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean("biovarmenne_enabled", enabled) }
+    }
+
+    fun isEnabled(): Boolean {
+        return prefs.getBoolean("biovarmenne_enabled", true) // default true
+    }
+
     fun savePin(pin: String) {
         try {
             val key = getOrCreateKey()

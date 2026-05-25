@@ -36,4 +36,9 @@
     <string name="button_autostart_settings">Enable Autostart</string>
     <string name="update_downloaded">Update downloaded and ready to install</string>
     <string name="update_restart">Restart</string>
+    <string name="toggle_enabled">Biovarmenne enabled</string>
+    <string name="notification_service_stopped_title">Biovarmenne is not running</string>
+    <string name="notification_service_stopped_message">Tap to re-enable accessibility service</string>
+    <string name="notification_channel_service_name">Service status</string>
+    <string name="notification_channel_service_desc">Biovarmenne service status notifications</string>
 </resources>

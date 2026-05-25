@@ -27,7 +27,9 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
     companion object {
         private const val STK_PACKAGE = "com.android.stk"
         private const val NOTIFICATION_CHANNEL_ID = "biovarmenne_wrong_pin"
+        const val NOTIFICATION_CHANNEL_SERVICE_ID = "biovarmenne_service_status"
         private const val NOTIFICATION_ID = 1001
+        const val NOTIFICATION_ID_SERVICE_STOPPED = 1002
         private val PIN_PROMPT_TEXTS = listOf(
             "Anna tunnusluku",
             "Ange PIN-kod",
@@ -44,6 +46,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
         super.onServiceConnected()
         pinStorage = SecurePinStorage(this)
         createNotificationChannel()
+        cancelServiceStoppedNotification()
 
         serviceScope.launch {
             BiovarmenneEvents.fillPin.collect { pin ->
@@ -74,23 +77,40 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
+        if (pinStorage.isEnabled()) {
+            showServiceStoppedNotification()
+        }
         serviceScope.cancel()
         return super.onUnbind(intent)
     }
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            "Biovarmenne",
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            description = "Biovarmenne PIN notifications"
-        }
-        getSystemService(NotificationManager::class.java)
-            .createNotificationChannel(channel)
+        val notificationManager = getSystemService(NotificationManager::class.java)
+
+        // Existing wrong PIN channel
+        notificationManager.createNotificationChannel(
+            NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "Biovarmenne",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Biovarmenne PIN notifications"
+            }
+        )
+
+        notificationManager.createNotificationChannel(
+            NotificationChannel(
+                NOTIFICATION_CHANNEL_SERVICE_ID,
+                getString(R.string.notification_channel_service_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = getString(R.string.notification_channel_service_desc)
+            }
+        )
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        if (!pinStorage.isEnabled()) return
         if (BuildConfig.DEBUG) {
             android.util.Log.d("Biovarmenne", "Event received: ${event.packageName}")
         }
@@ -219,6 +239,41 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
         }
     }
 
+    private fun showServiceStoppedNotification() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this, 1, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_SERVICE_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(getString(R.string.notification_service_stopped_title))
+            .setContentText(getString(R.string.notification_service_stopped_message))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                NotificationManagerCompat.from(this)
+                    .notify(NOTIFICATION_ID_SERVICE_STOPPED, notification)
+            }
+        } else {
+            NotificationManagerCompat.from(this)
+                .notify(NOTIFICATION_ID_SERVICE_STOPPED, notification)
+        }
+    }
+
+    private fun cancelServiceStoppedNotification() {
+        NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID_SERVICE_STOPPED)
+    }
+
     private fun findInputField(rootNode: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         for (i in 0 until rootNode.childCount) {
             val child = rootNode.getChild(i) ?: continue
@@ -267,7 +322,11 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
                     return
                 }
 
-                val cancelTexts = listOf("Peru", "PERU", "Cancel", "Avbryt")
+                val cancelTexts = listOf(
+                    "Peru", "PERU",
+                    "Peruuta", "PERUUTA",
+                    "Cancel", "Avbryt"
+                )
                 cancelTexts.forEach { text ->
                     val nodes = rootNode.findAccessibilityNodeInfosByText(text)
                     nodes.firstOrNull()?.let { node ->

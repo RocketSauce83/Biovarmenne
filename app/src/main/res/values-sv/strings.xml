@@ -36,4 +36,9 @@
     <string name="button_autostart_settings">Aktivera autostart</string>
     <string name="update_downloaded">Uppdatering nedladdad och redo att installeras</string>
     <string name="update_restart">Starta om</string>
+    <string name="toggle_enabled">Biovarmenne aktiverad</string>
+    <string name="notification_service_stopped_title">Biovarmenne körs inte</string>
+    <string name="notification_service_stopped_message">Tryck för att återaktivera tillgänglighetstjänsten</string>
+    <string name="notification_channel_service_name">Tjänstestatus</string>
+    <string name="notification_channel_service_desc">Biovarmenne tjänstestatusaviseringar</string>
 </resources>

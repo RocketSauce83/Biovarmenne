@@ -36,4 +36,9 @@
     <string name="button_autostart_settings">Salli automaattinen käynnistys</string>
     <string name="update_downloaded">Päivitys ladattu ja valmis asennettavaksi</string>
     <string name="update_restart">Käynnistä uudelleen</string>
+    <string name="toggle_enabled">Biovarmenne käytössä</string>
+    <string name="notification_service_stopped_title">Biovarmenne ei ole käynnissä</string>
+    <string name="notification_service_stopped_message">Napauta ottaaksesi esteettömyyspalvelun uudelleen käyttöön</string>
+    <string name="notification_channel_service_name">Palvelun tila</string>
+    <string name="notification_channel_service_desc">Biovarmenne palvelun tilailmoitukset</string>
 </resources>
