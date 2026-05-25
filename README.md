@@ -43,6 +43,10 @@ of promises. 😄
 - ⚡ Synced with Mobiilivarmenne's 30 second timeout
 - 🚫 Cancel button properly rejects spam authentication requests
 - 🔋 Battery optimization guidance built in
+- 🔔 Notifications if wrong PIN or service stops unexpectedly
+- ⚙️ Toggle to quickly enable/disable without touching system settings
+- 🔄 Automatic check after device restart
+- 📲 Xiaomi/MIUI support with dedicated setup guidance
 
 ## Requirements
 
@@ -67,7 +71,10 @@ Open in Android Studio, build and install.
 2. Enter and save your Mobiilivarmenne PIN code
 3. Tap "Open Accessibility Settings" and enable Biovarmenne
 4. Tap "Disable Battery Optimization" and allow unrestricted battery usage
-5. All status indicators should be green ✓
+5. Allow notifications when prompted
+6. **Xiaomi/MIUI users:** Also enable "Display pop-up windows while 
+   running in background" and "Autostart" via the buttons in the app
+7. All status indicators should be checked ✓
 
 ## Security
 
@@ -83,7 +90,10 @@ Biovarmenne is open source — you can verify every line of code yourself.
 |---|---|
 | Accessibility Service | Detect Mobiilivarmenne PIN requests and auto-fill |
 | Biometric | Fingerprint/face authentication |
-| Request Ignore Battery Optimizations | Keep service running reliably |
+| Request Ignore Battery Optimizations | Keep service running reliably in background |
+| Post Notifications | Wrong PIN alerts and service status notifications |
+| Receive Boot Completed | Check service status after device restart |
+| System Alert Window | Required on Xiaomi/MIUI devices for biometric prompt |
 
 ## Privacy Policy
 
