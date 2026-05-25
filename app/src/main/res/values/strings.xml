@@ -34,4 +34,6 @@
     <string name="button_popup_settings">Open App Info -> Other Permissions</string>
     <string name="status_autostart_required">⚠ Autostart is required on Xiaomi devices to keep the background service alive</string>
     <string name="button_autostart_settings">Enable Autostart</string>
+    <string name="update_downloaded">Update downloaded and ready to install</string>
+    <string name="update_restart">Restart</string>
 </resources>

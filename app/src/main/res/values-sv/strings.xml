@@ -34,4 +34,6 @@
     <string name="button_popup_settings">Öppna Appinfo -> Andra behörigheter</string>
     <string name="status_autostart_required">⚠ Autostart krävs på Xiaomi-enheter för att hålla bakgrundstjänsten vid liv</string>
     <string name="button_autostart_settings">Aktivera autostart</string>
+    <string name="update_downloaded">Uppdatering nedladdad och redo att installeras</string>
+    <string name="update_restart">Starta om</string>
 </resources>

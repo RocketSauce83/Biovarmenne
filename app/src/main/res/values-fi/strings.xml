@@ -34,4 +34,6 @@
     <string name="button_popup_settings">Avaa Sovelluksen tiedot -> Muut oikeudet</string>
     <string name="status_autostart_required">⚠ Automaattinen käynnistys taustalla vaaditaan Xiaomi-laitteilla, jotta palvelu pysyy käynnissä</string>
     <string name="button_autostart_settings">Salli automaattinen käynnistys</string>
+    <string name="update_downloaded">Päivitys ladattu ja valmis asennettavaksi</string>
+    <string name="update_restart">Käynnistä uudelleen</string>
 </resources>

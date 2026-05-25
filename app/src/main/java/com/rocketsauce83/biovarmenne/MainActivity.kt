@@ -35,11 +35,21 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.install.model.InstallStatus
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var pinStorage: SecurePinStorage
     private lateinit var appUpdateManager: AppUpdateManager
+
+    private val updateDownloaded = mutableStateOf(false)
+
+    private val installStateUpdatedListener = InstallStateUpdatedListener { state ->
+        if (state.installStatus() == InstallStatus.DOWNLOADED) {
+            updateDownloaded.value = true
+        }
+    }
 
     private val batteryOptimizationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -62,6 +72,7 @@ class MainActivity : ComponentActivity() {
         pinStorage.migrateIfNeeded()
         enableEdgeToEdge()
         appUpdateManager = AppUpdateManagerFactory.create(this)
+        appUpdateManager.registerListener(installStateUpdatedListener)
         checkForUpdates()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -78,6 +89,10 @@ class MainActivity : ComponentActivity() {
             BiovarmenneTheme {
                 BiovarmenneApp(
                     pinStorage = pinStorage,
+                    updateDownloaded = updateDownloaded.value,
+                    onCompleteUpdate = {
+                        appUpdateManager.completeUpdate()       // 👈 pass action
+                    },
                     onOpenAccessibilitySettings = {
                         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                     },
@@ -136,16 +151,15 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
-            if (appUpdateInfo.updateAvailability() ==
-                UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
-                // If update was started but not completed resume it
-                appUpdateManager.startUpdateFlowForResult(
-                    appUpdateInfo,
-                    updateLauncher,
-                    AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
-                )
+            if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                updateDownloaded.value = true
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        appUpdateManager.unregisterListener(installStateUpdatedListener) // 👈 unregister
     }
 }
 
@@ -167,12 +181,32 @@ private fun isMiui(): Boolean {
 @Composable
 fun BiovarmenneApp(
     pinStorage: SecurePinStorage,
+    updateDownloaded: Boolean = false,
+    onCompleteUpdate: () -> Unit = {},
     onOpenAccessibilitySettings: () -> Unit,
     onOpenBatterySettings: () -> Unit,
     onOpenAppInfoSettings: () -> Unit,
     onOpenAutostartSettings: () -> Unit
 ) {
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val updDownloaded = stringResource(R.string.update_downloaded)
+    val updRestart = stringResource(R.string.update_restart)
+
+    LaunchedEffect(updateDownloaded) {
+        if (updateDownloaded) {
+            val result = snackbarHostState.showSnackbar(
+                message = (updDownloaded),
+                actionLabel = (updRestart),
+                duration = SnackbarDuration.Indefinite
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                onCompleteUpdate()
+            }
+        }
+    }
+
     var pin by remember { mutableStateOf("") }
     var confirmPin by remember { mutableStateOf("") }
     var hasPin by remember { mutableStateOf(pinStorage.hasPin()) }
@@ -227,7 +261,10 @@ fun BiovarmenneApp(
         )
     }
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
