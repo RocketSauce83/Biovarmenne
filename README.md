@@ -1,7 +1,7 @@
 # Biovarmenne 🔐
 
 Biovarmenne replaces the manual PIN code entry in Mobiilivarmenne with 
-fingerprint or face authentication. What Finnish mobile operators DNA and Elisa 
+fingerprint or face authentication. What Finnish mobile operators DNA, Elisa and Telia
 promised but never delivered — available now as free open source software.
 
 ## Background
