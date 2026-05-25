@@ -93,7 +93,6 @@ Biovarmenne is open source — you can verify every line of code yourself.
 | Request Ignore Battery Optimizations | Keep service running reliably in background |
 | Post Notifications | Wrong PIN alerts and service status notifications |
 | Receive Boot Completed | Check service status after device restart |
-| System Alert Window | Required on Xiaomi/MIUI devices for biometric prompt |
 
 ## Privacy Policy
 
