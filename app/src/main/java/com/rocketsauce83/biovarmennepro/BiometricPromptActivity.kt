@@ -1,4 +1,4 @@
-package com.rocketsauce83.biovarmenne
+package com.rocketsauce83.biovarmennepro
 
 import android.os.Bundle
 import android.os.Handler

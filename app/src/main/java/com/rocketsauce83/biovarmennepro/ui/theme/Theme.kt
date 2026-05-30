@@ -1,4 +1,4 @@
-package com.rocketsauce83.biovarmenne.ui.theme
+package com.rocketsauce83.biovarmennepro.ui.theme
 
 import android.app.Activity
 import android.os.Build

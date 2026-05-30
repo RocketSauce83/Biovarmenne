@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.rocketsauce83.biovarmenne"
+    namespace = "com.rocketsauce83.biovarmennepro"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.rocketsauce83.biovarmenne"
+        applicationId = "com.rocketsauce83.biovarmennepro"
         minSdk = 30
         targetSdk = 36
 

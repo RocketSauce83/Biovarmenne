@@ -1,4 +1,4 @@
-package com.rocketsauce83.biovarmenne
+package com.rocketsauce83.biovarmennepro
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -14,7 +14,7 @@ class BiovarmenneInstrumentedTest {
         val appContext = InstrumentationRegistry
             .getInstrumentation().targetContext
         assertEquals(
-            "com.rocketsauce83.biovarmenne",
+            "com.rocketsauce83.biovarmennepro",
             appContext.packageName
         )
     }

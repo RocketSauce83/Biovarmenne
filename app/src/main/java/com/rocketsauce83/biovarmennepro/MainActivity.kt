@@ -1,4 +1,4 @@
-package com.rocketsauce83.biovarmenne
+package com.rocketsauce83.biovarmennepro
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import com.google.android.play.core.appupdate.AppUpdateManager
-import com.rocketsauce83.biovarmenne.ui.theme.BiovarmenneTheme
+import com.rocketsauce83.biovarmennepro.ui.theme.BiovarmenneTheme
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
@@ -41,12 +41,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 
 class MainActivity : ComponentActivity() {

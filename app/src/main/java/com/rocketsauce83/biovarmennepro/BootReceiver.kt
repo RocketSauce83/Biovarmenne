@@ -1,4 +1,4 @@
-package com.rocketsauce83.biovarmenne
+package com.rocketsauce83.biovarmennepro
 
 import android.Manifest
 import android.app.PendingIntent

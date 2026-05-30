@@ -57,6 +57,8 @@ of promises. 😄
 ## Installation
 
 ### Option 1 — Google Play Store (Recommended)
+Biovarmenne is a free and open-source accessibility tool. You are welcome to clone this repository, review the code, and build the app yourself at no cost.
+If you wish to support the development and prefer the convenience of automatic updates, you can get the pre-built app from the Google Play Store:
 [Download from Google Play](#) ← link coming soon
 
 ### Option 2 — Build from source

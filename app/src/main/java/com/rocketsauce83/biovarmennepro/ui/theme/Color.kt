@@ -1,4 +1,4 @@
-package com.rocketsauce83.biovarmenne.ui.theme
+package com.rocketsauce83.biovarmennepro.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

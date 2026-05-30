@@ -1,4 +1,4 @@
-package com.rocketsauce83.biovarmenne
+package com.rocketsauce83.biovarmennepro
 
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec

@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 # Biovarmenne specific
--keep class com.rocketsauce83.biovarmenne.** { *; }
+-keep class com.rocketsauce83.biovarmennepro.** { *; }
 
 # Accessibility Service - must not be obfuscated
 -keep class * extends android.accessibilityservice.AccessibilityService { *; }
