@@ -1,10 +1,7 @@
 # Biovarmenne 🔐
 
-> Biometric authentication for Finnish Mobiilivarmenne — built in one evening 
-> while Finnish telcos gave up 😄
-
 Biovarmenne replaces the manual PIN code entry in Mobiilivarmenne with 
-fingerprint or face authentication. What Finnish mobile operators DNA and Elisa 
+fingerprint or face authentication. What Finnish mobile operators DNA, Elisa and Telia
 promised but never delivered — available now as free open source software.
 
 ## Background
@@ -13,10 +10,20 @@ Mobiilivarmenne is a strong authentication method used widely in Finland for
 identifying yourself in online services (Suomi.fi, banking, etc.). 
 It works by sending a PIN request to your phone via SIM Toolkit.
 
-In early 2025, Finnish operators announced they would develop a biometric 
-Mobiilivarmenne app. By late 2025, DNA had cancelled development completely 
-and Elisa's development was severely delayed. Biovarmenne was built as a 
-third-party solution to fill this gap.
+In 2019, DNA, Elisa and Telia signed an agreement to bring biometric 
+authentication to Mobiilivarmenne. The feature was promised for 2020.
+
+Nothing happened.
+
+In early 2025, Finnish operators announced once again they would develop 
+biometric support to Mobiilivarmenne, this time with a dedicated app. 
+By late 2025, DNA had cancelled development completely and Elisa's 
+development was severely delayed. Telia was never part of the app 
+development at any stage.
+
+Biovarmenne was built as a third-party solution to fill this gap — 
+developed in one evening while Finnish telcos gave up after 6 years 
+of promises. 😄
 
 ## How It Works
 
@@ -30,12 +37,16 @@ third-party solution to fill this gap.
 
 - 🔐 Fingerprint and face authentication
 - 🔒 PIN encrypted with Android Keystore (AES-256)
-- 🇫🇮 Works with all Finnish operators (Telia, Elisa, DNA)
+- 🇫🇮 Works with all major Finnish operators (Telia, Elisa, DNA)
 - 🌍 Available in Finnish, Swedish and English
 - 📱 Works when device is locked
 - ⚡ Synced with Mobiilivarmenne's 30 second timeout
 - 🚫 Cancel button properly rejects spam authentication requests
 - 🔋 Battery optimization guidance built in
+- 🔔 Notifications if wrong PIN or service stops unexpectedly
+- ⚙️ Toggle to quickly enable/disable without touching system settings
+- 🔄 Automatic check after device restart
+- 📲 Xiaomi/MIUI support with dedicated setup guidance
 
 ## Requirements
 
@@ -60,7 +71,10 @@ Open in Android Studio, build and install.
 2. Enter and save your Mobiilivarmenne PIN code
 3. Tap "Open Accessibility Settings" and enable Biovarmenne
 4. Tap "Disable Battery Optimization" and allow unrestricted battery usage
-5. All status indicators should be green ✓
+5. Allow notifications when prompted
+6. **Xiaomi/MIUI users:** Also enable "Display pop-up windows while 
+   running in background" and "Autostart" via the buttons in the app
+7. All status indicators should be checked ✓
 
 ## Security
 
@@ -76,7 +90,9 @@ Biovarmenne is open source — you can verify every line of code yourself.
 |---|---|
 | Accessibility Service | Detect Mobiilivarmenne PIN requests and auto-fill |
 | Biometric | Fingerprint/face authentication |
-| Request Ignore Battery Optimizations | Keep service running reliably |
+| Request Ignore Battery Optimizations | Keep service running reliably in background |
+| Post Notifications | Wrong PIN alerts and service status notifications |
+| Receive Boot Completed | Check service status after device restart |
 
 ## Privacy Policy
 
