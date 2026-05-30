@@ -4,7 +4,7 @@
     <string name="app_subtitle">Mobiilivarmenne with fingerprint</string>
     <string name="status_pin_saved">✓ Mobiilivarmenne PIN code saved</string>
     <string name="status_pin_missing">⚠ Mobiilivarmenne PIN code not set</string>
-    <string name="pin_input_label">Mobiilivarmenne PIN code (4&#8211;8 digits)</string>
+    <string name="pin_input_label">Mobiilivarmenne PIN code</string>
     <string name="pin_confirm_label">Confirm Mobiilivarmenne PIN code</string>
     <string name="error_pin_too_short">PIN code must be at least 4 digits</string>
     <string name="error_pin_mismatch">PIN codes do not match</string>
@@ -29,7 +29,7 @@
     <string name="status_accessibility_disabled">⚠ Accessibility service is not enabled</string>
     <string name="notification_wrong_pin_title">Wrong Mobiilivarmenne PIN!</string>
     <string name="notification_wrong_pin_message">Tap to update your PIN in Biovarmenne</string>
-    <string name="pin_input_helper">Enter the PIN code you use with Mobiilivarmenne service</string>
+    <string name="pin_input_helper">Enter the PIN code you use with Mobiilivarmenne</string>
     <string name="status_popup_required_miui">⚠ Xiaomi devices require the \"Display pop-up windows while running in the background\" permission to show the PIN prompt.</string>
     <string name="button_popup_settings">Open App Info -> Other Permissions</string>
     <string name="status_autostart_required">⚠ Autostart is required on Xiaomi devices to keep the background service alive</string>

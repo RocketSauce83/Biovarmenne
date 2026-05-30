@@ -4,7 +4,7 @@
     <string name="app_subtitle">Mobiilivarmenne sormenjäljellä</string>
     <string name="status_pin_saved">✓ Mobiilivarmenne-tunnusluku tallennettu</string>
     <string name="status_pin_missing">⚠ Mobiilivarmenne-tunnuslukua ei ole asetettu</string>
-    <string name="pin_input_label">Mobiilivarmenne-tunnusluku (4&#8211;8 numeroa)</string>
+    <string name="pin_input_label">Mobiilivarmenne-tunnusluku</string>
     <string name="pin_confirm_label">Vahvista Mobiilivarmenne-tunnusluku</string>
     <string name="error_pin_too_short">Tunnusluvun on oltava vähintään 4 numeroa</string>
     <string name="error_pin_mismatch">Tunnusluvut eivät täsmää</string>
@@ -29,7 +29,7 @@
     <string name="status_accessibility_disabled">⚠ Esteettömyyspalvelu ei ole käytössä</string>
     <string name="notification_wrong_pin_title">Väärä Mobiilivarmenne-tunnusluku!</string>
     <string name="notification_wrong_pin_message">Napauta päivittääksesi tunnuslukusi Biovarmenteessa</string>
-    <string name="pin_input_helper">Syötä PIN-koodi, jota käytät Mobiilivarmenne-palvelussa</string>
+    <string name="pin_input_helper">Syötä PIN-koodi, jota käytät Mobiilivarmenteessa</string>
     <string name="status_popup_required_miui">⚠ Xiaomi-laitteet vaativat \"Avaa uudet ikkunat taustalla käynnissä\" -luvan, jotta PIN-kysely voidaan näyttää.</string>
     <string name="button_popup_settings">Avaa Sovelluksen tiedot -> Muut oikeudet</string>
     <string name="status_autostart_required">⚠ Automaattinen käynnistys taustalla vaaditaan Xiaomi-laitteilla, jotta palvelu pysyy käynnissä</string>

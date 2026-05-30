@@ -4,7 +4,7 @@
     <string name="app_subtitle">Mobiilivarmenne med fingeravtryck</string>
     <string name="status_pin_saved">✓ Mobiilivarmenne PIN-kod sparad</string>
     <string name="status_pin_missing">⚠ Mobiilivarmenne PIN-kod har inte angetts</string>
-    <string name="pin_input_label">Mobiilivarmenne PIN-kod (4&#8211;8 siffror)</string>
+    <string name="pin_input_label">Mobiilivarmenne PIN-kod</string>
     <string name="pin_confirm_label">Bekräfta Mobiilivarmenne PIN-kod</string>
     <string name="error_pin_too_short">PIN-koden måste vara minst 4 siffror</string>
     <string name="error_pin_mismatch">PIN-koderna stämmer inte överens</string>
@@ -29,7 +29,7 @@
     <string name="status_accessibility_disabled">⚠ Tillgänglighetstjänsten är inte aktiverad</string>
     <string name="notification_wrong_pin_title">Fel Mobiilivarmenne PIN-kod!</string>
     <string name="notification_wrong_pin_message">Tryck för att uppdatera din PIN-kod i Biovarmenne</string>
-    <string name="pin_input_helper">Ange PIN-koden du använder med Mobiilivarmenne-tjänsten</string>
+    <string name="pin_input_helper">Ange PIN-koden du använder med Mobiilivarmenne</string>
     <string name="status_popup_required_miui">⚠ Xiaomi-enheter kräver behörigheten \"Öppna nya fönster när de körs i bakgrunden\" för att visa PIN-frågan.</string>
     <string name="button_popup_settings">Öppna Appinfo -> Andra behörigheter</string>
     <string name="status_autostart_required">⚠ Autostart krävs på Xiaomi-enheter för att hålla bakgrundstjänsten vid liv</string>
