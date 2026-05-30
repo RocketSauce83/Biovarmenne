@@ -41,7 +41,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 
 class MainActivity : ComponentActivity() {
@@ -97,7 +102,7 @@ class MainActivity : ComponentActivity() {
                     pinStorage = pinStorage,
                     updateDownloaded = updateDownloaded.value,
                     onCompleteUpdate = {
-                        appUpdateManager.completeUpdate()       // 👈 pass action
+                        appUpdateManager.completeUpdate()
                     },
                     onOpenAccessibilitySettings = {
                         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -117,7 +122,7 @@ class MainActivity : ComponentActivity() {
                         }
                         startActivity(intent)
                     },
-                    onOpenAutostartSettings = { // 👈 Add this block
+                    onOpenAutostartSettings = {
                         try {
                             val intent = Intent()
                             intent.component = android.content.ComponentName(
@@ -165,7 +170,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        appUpdateManager.unregisterListener(installStateUpdatedListener) // 👈 unregister
+        appUpdateManager.unregisterListener(installStateUpdatedListener)
     }
 }
 
@@ -280,25 +285,23 @@ fun BiovarmenneApp(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    val collapsedFraction = scrollBehavior.state.collapsedFraction
-
                     Column {
                         Text(
                             text = stringResource(R.string.app_name),
                             maxLines = 1,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.headlineMedium,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(end = 16.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
 
                         Text(
                             text = stringResource(R.string.app_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                alpha = (1f - collapsedFraction).coerceIn(0f, 1f)
-                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(end = 16.dp),
@@ -306,6 +309,10 @@ fun BiovarmenneApp(
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.background
+                ),
                 scrollBehavior = scrollBehavior
             )
         },
@@ -421,7 +428,7 @@ fun BiovarmenneApp(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer  // 👈 different color
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
                     )
                 ) {
                     Text(
@@ -434,7 +441,7 @@ fun BiovarmenneApp(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer  // 👈 different color
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
                     )
                 ) {
                     Text(
@@ -445,7 +452,7 @@ fun BiovarmenneApp(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             val ePinTooShort = stringResource(R.string.error_pin_too_short)
             val ePinMismatch = stringResource(R.string.error_pin_mismatch)
@@ -465,7 +472,7 @@ fun BiovarmenneApp(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = confirmPin,
