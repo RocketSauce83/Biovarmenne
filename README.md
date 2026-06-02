@@ -60,7 +60,8 @@ of promises. 😄
 Biovarmenne is a free and open-source accessibility tool. You are welcome to clone this repository, review the code, and build the app yourself at no cost.
 If you wish to support the development and prefer the convenience of automatic updates, you can get the pre-built app from the Google Play Store:
 
-[![Get it on Google Play](https://google.com)](https://play.google.com/store/apps/details?id=com.rocketsauce83.biovarmennepro)
+[![Get it on Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=com.rocketsauce83.biovarmennepro)
+
 
 ### Option 2 — Build from source
 ```bash
