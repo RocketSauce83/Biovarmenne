@@ -5,15 +5,15 @@ plugins {
 
 android {
     namespace = "com.rocketsauce83.biovarmennepro"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.rocketsauce83.biovarmennepro"
         minSdk = 30
         targetSdk = 36
 
-        versionCode = 8
-        versionName = "1.0.8"
+        versionCode = 11
+        versionName = "1.0.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
