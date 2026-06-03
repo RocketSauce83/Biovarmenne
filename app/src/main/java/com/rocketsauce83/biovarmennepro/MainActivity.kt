@@ -11,38 +11,44 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import com.google.android.play.core.appupdate.AppUpdateManager
-import com.rocketsauce83.biovarmennepro.ui.theme.BiovarmenneTheme
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import com.google.android.play.core.install.InstallStateUpdatedListener
-import com.google.android.play.core.install.model.InstallStatus
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.style.TextOverflow
+import com.rocketsauce83.biovarmennepro.ui.theme.BiovarmenneTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -68,7 +74,6 @@ class MainActivity : ComponentActivity() {
     private val updateLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
     ) {
-        // Update result handled — no action needed on cancel or failure
     }
 
     @SuppressLint("BatteryLife")
@@ -111,7 +116,6 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     onOpenAppInfoSettings = {
-                        // Navigates directly to the App Info screen shown in your screenshot
                         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                             data = "package:$packageName".toUri()
                         }
@@ -126,7 +130,6 @@ class MainActivity : ComponentActivity() {
                             )
                             startActivity(intent)
                         } catch (_: Exception) {
-                            // Fallback to standard app settings if the MIUI activity isn't found
                             startActivity(
                                 Intent(
                                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -184,7 +187,46 @@ private fun isMiui(): Boolean {
             Build.BRAND.equals("Redmi", ignoreCase = true)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StatusCard(
+    text: String,
+    isOk: Boolean,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isOk)
+                MaterialTheme.colorScheme.primaryContainer
+            else
+                MaterialTheme.colorScheme.errorContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isOk)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onErrorContainer
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = text,
+                color = if (isOk)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onErrorContainer
+            )
+        }
+    }
+}
+
 @Composable
 fun BiovarmenneApp(
     pinStorage: SecurePinStorage,
@@ -195,20 +237,210 @@ fun BiovarmenneApp(
     onOpenAppInfoSettings: () -> Unit,
     onOpenAutostartSettings: () -> Unit
 ) {
+    var isOnboardingCompleted by remember {
+        mutableStateOf(pinStorage.isOnboardingCompleted())
+    }
+
+    if (isOnboardingCompleted) {
+        MainStatusScreen(
+            pinStorage = pinStorage,
+            updateDownloaded = updateDownloaded,
+            onCompleteUpdate = onCompleteUpdate,
+            onOpenAccessibilitySettings = onOpenAccessibilitySettings,
+            onOpenBatterySettings = onOpenBatterySettings,
+            onOpenAppInfoSettings = onOpenAppInfoSettings,
+            onOpenAutostartSettings = onOpenAutostartSettings
+        )
+    } else {
+        SetupWizardScreen(
+            pinStorage = pinStorage,
+            onFinishOnboarding = {
+                pinStorage.setOnboardingCompleted(true)
+                isOnboardingCompleted = true
+            },
+            onOpenAccessibilitySettings = onOpenAccessibilitySettings,
+            onOpenBatterySettings = onOpenBatterySettings,
+            onOpenAppInfoSettings = onOpenAppInfoSettings,
+            onOpenAutostartSettings = onOpenAutostartSettings
+        )
+    }
+}
+
+enum class WizardPageType {
+    WELCOME, BATTERY, MIUI_SETTINGS, ACCESSIBILITY, PIN_SETUP
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SetupWizardScreen(
+    pinStorage: SecurePinStorage,
+    onFinishOnboarding: () -> Unit,
+    onOpenAccessibilitySettings: () -> Unit,
+    onOpenBatterySettings: () -> Unit,
+    onOpenAppInfoSettings: () -> Unit,
+    onOpenAutostartSettings: () -> Unit
+) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
+    val powerManager = context.getSystemService<PowerManager>()
+    var isBatteryOptimizationIgnored by remember {
+        mutableStateOf(powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false)
+    }
+    var isAccessibilityServiceEnabled by remember {
+        mutableStateOf(isAccessibilityServiceEnabled(context))
+    }
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                isBatteryOptimizationIgnored =
+                    powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
+                isAccessibilityServiceEnabled = isAccessibilityServiceEnabled(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    val pages = remember {
+        val list = mutableListOf(WizardPageType.WELCOME, WizardPageType.BATTERY)
+        if (isMiui()) {
+            list.add(WizardPageType.MIUI_SETTINGS)
+        }
+        list.add(WizardPageType.ACCESSIBILITY)
+        list.add(WizardPageType.PIN_SETUP)
+        list
+    }
+
+    val pagerState = rememberPagerState(pageCount = { pages.size })
+
+    val goToNextPage: () -> Unit = {
+        if (pagerState.currentPage < pages.size - 1) {
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+            }
+        } else {
+            onFinishOnboarding()
+        }
+    }
+
+    Scaffold(
+        bottomBar = {
+            WizardBottomBar(
+                pagerState = pagerState,
+                pageCount = pages.size,
+                onSkip = onFinishOnboarding,
+                onNext = goToNextPage
+            )
+        }
+    ) { innerPadding ->
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            userScrollEnabled = false
+        ) { pageIndex ->
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                when (pages[pageIndex]) {
+                    WizardPageType.WELCOME -> WelcomePage()
+                    WizardPageType.BATTERY -> BatteryPage(
+                        isOptimizationIgnored = isBatteryOptimizationIgnored,
+                        onOpenBatterySettings = onOpenBatterySettings,
+                        onNext = goToNextPage
+                    )
+                    WizardPageType.MIUI_SETTINGS -> MiuiSettingsPage(
+                        onOpenAppInfoSettings = onOpenAppInfoSettings,
+                        onOpenAutostartSettings = onOpenAutostartSettings
+                    )
+                    WizardPageType.ACCESSIBILITY -> AccessibilityPage(
+                        isServiceEnabled = isAccessibilityServiceEnabled,
+                        onOpenAccessibilitySettings = onOpenAccessibilitySettings,
+                        onNext = goToNextPage
+                    )
+                    WizardPageType.PIN_SETUP -> PinPage(
+                        pinStorage = pinStorage,
+                        onPinSaved = goToNextPage
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun WizardBottomBar(
+    pagerState: PagerState,
+    pageCount: Int,
+    onSkip: () -> Unit,
+    onNext: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(onClick = onSkip) {
+            Text("Ohita")
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(pageCount) { iteration ->
+                val color = if (pagerState.currentPage == iteration)
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(8.dp)
+                        .background(color, CircleShape)
+                )
+            }
+        }
+
+        Button(onClick = onNext) {
+            Text(if (pagerState.currentPage == pageCount - 1) "Valmis" else "Seuraava")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainStatusScreen(
+    pinStorage: SecurePinStorage,
+    updateDownloaded: Boolean = false,
+    onCompleteUpdate: () -> Unit = {},
+    onOpenAccessibilitySettings: () -> Unit,
+    onOpenBatterySettings: () -> Unit,
+    onOpenAppInfoSettings: () -> Unit,
+    onOpenAutostartSettings: () -> Unit
+) {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-
     val snackbarHostState = remember { SnackbarHostState() }
 
     val updDownloaded = stringResource(R.string.update_downloaded)
     val updRestart = stringResource(R.string.update_restart)
+    val bPinCleared = stringResource(R.string.status_pin_cleared)
 
     LaunchedEffect(updateDownloaded) {
         if (updateDownloaded) {
             val result = snackbarHostState.showSnackbar(
-                message = (updDownloaded),
-                actionLabel = (updRestart),
+                message = updDownloaded,
+                actionLabel = updRestart,
                 duration = SnackbarDuration.Indefinite
             )
             if (result == SnackbarResult.ActionPerformed) {
@@ -223,20 +455,17 @@ fun BiovarmenneApp(
     var statusMessage by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     var showDisclosureDialog by remember { mutableStateOf(false) }
+    var showClearPinDialog by remember { mutableStateOf(false) }
 
     val isMiuiDevice = isMiui()
-
     val powerManager = context.getSystemService<PowerManager>()
-    var isBatteryOptimizationIgnored by remember {
-        mutableStateOf(
-            powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
-        )
-    }
 
+    var isBatteryOptimizationIgnored by remember {
+        mutableStateOf(powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false)
+    }
     var isAccessibilityServiceEnabled by remember {
         mutableStateOf(isAccessibilityServiceEnabled(context))
     }
-
     var isEnabled by remember { mutableStateOf(pinStorage.isEnabled()) }
 
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -250,6 +479,34 @@ fun BiovarmenneApp(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    if (showClearPinDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearPinDialog = false },
+            title = { Text(stringResource(R.string.dialog_clear_pin_title)) },
+            text = { Text(stringResource(R.string.dialog_clear_pin_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pinStorage.clearPin()
+                        hasPin = false
+                        pin = ""
+                        confirmPin = ""
+                        statusMessage = bPinCleared
+                        isError = false
+                        showClearPinDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.dialog_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearPinDialog = false }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
     }
 
     if (showDisclosureDialog) {
@@ -292,7 +549,6 @@ fun BiovarmenneApp(
                                 .padding(end = 16.dp),
                             textAlign = TextAlign.Center,
                         )
-
                         Text(
                             text = stringResource(R.string.app_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
@@ -322,7 +578,6 @@ fun BiovarmenneApp(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
@@ -333,7 +588,10 @@ fun BiovarmenneApp(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.toggle_enabled),
+                    text = if (isEnabled)
+                        stringResource(R.string.toggle_enabled)
+                    else
+                        stringResource(R.string.toggle_disabled),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Switch(
@@ -341,83 +599,58 @@ fun BiovarmenneApp(
                     onCheckedChange = { enabled ->
                         isEnabled = enabled
                         pinStorage.setEnabled(enabled)
+                    },
+                    thumbContent = {
+                        if (isEnabled) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize)
+                            )
+                        }
                     }
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (hasPin)
-                        MaterialTheme.colorScheme.primaryContainer
-                    else
-                        MaterialTheme.colorScheme.errorContainer
-                )
-            ) {
-                Text(
-                    text = if (hasPin) stringResource(R.string.status_pin_saved)
-                    else stringResource(R.string.status_pin_missing),
-                    modifier = Modifier.padding(16.dp),
-                    color = if (hasPin)
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    else
-                        MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
+            StatusCard(
+                text = if (hasPin) stringResource(R.string.status_pin_saved)
+                else stringResource(R.string.status_pin_missing),
+                isOk = hasPin,
+                icon = if (hasPin) Icons.Default.Lock else Icons.Default.LockOpen
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isBatteryOptimizationIgnored)
-                        MaterialTheme.colorScheme.primaryContainer
-                    else
-                        MaterialTheme.colorScheme.errorContainer
-                )
-            ) {
-                Text(
-                    text = if (isBatteryOptimizationIgnored)
-                        stringResource(R.string.status_battery_unrestricted)
-                    else
-                        stringResource(R.string.status_battery_restricted),
-                    modifier = Modifier.padding(16.dp),
-                    color = if (isBatteryOptimizationIgnored)
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    else
-                        MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
+            StatusCard(
+                text = if (isBatteryOptimizationIgnored)
+                    stringResource(R.string.status_battery_unrestricted)
+                else
+                    stringResource(R.string.status_battery_restricted),
+                isOk = isBatteryOptimizationIgnored,
+                icon = if (isBatteryOptimizationIgnored) Icons.Default.BatteryFull else Icons.Default.BatteryAlert
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isAccessibilityServiceEnabled)
-                        MaterialTheme.colorScheme.primaryContainer
-                    else
-                        MaterialTheme.colorScheme.errorContainer
-                )
-            ) {
-                Text(
-                    text = if (isAccessibilityServiceEnabled)
-                        stringResource(R.string.status_accessibility_enabled)
-                    else
-                        stringResource(R.string.status_accessibility_disabled),
-                    modifier = Modifier.padding(16.dp),
-                    color = if (isAccessibilityServiceEnabled)
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    else
-                        MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
+            StatusCard(
+                text = if (isAccessibilityServiceEnabled)
+                    stringResource(R.string.status_accessibility_enabled)
+                else
+                    stringResource(R.string.status_accessibility_disabled),
+                isOk = isAccessibilityServiceEnabled,
+                icon = Icons.Default.AccessibilityNew
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // MIUI info cards — use tertiaryContainer color
             if (isMiuiDevice) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(
@@ -426,11 +659,21 @@ fun BiovarmenneApp(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer
                     )
                 ) {
-                    Text(
-                        text = stringResource(R.string.status_popup_required_miui),
+                    Row(
                         modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.status_popup_required_miui),
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(
@@ -439,11 +682,21 @@ fun BiovarmenneApp(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer
                     )
                 ) {
-                    Text(
-                        text = stringResource(R.string.status_autostart_required),
+                    Row(
                         modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Autorenew,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.status_autostart_required),
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
                 }
             }
 
@@ -452,7 +705,6 @@ fun BiovarmenneApp(
             val ePinTooShort = stringResource(R.string.error_pin_too_short)
             val ePinMismatch = stringResource(R.string.error_pin_mismatch)
             val sPinSaved = stringResource(R.string.success_pin_saved)
-            val bPinCleared = stringResource(R.string.status_pin_cleared)
 
             OutlinedTextField(
                 value = pin,
@@ -461,6 +713,7 @@ fun BiovarmenneApp(
                 },
                 label = { Text(stringResource(R.string.pin_input_label)) },
                 supportingText = { Text(stringResource(R.string.pin_input_helper)) },
+                leadingIcon = { Icon(Icons.Default.Password, contentDescription = null) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 singleLine = true,
@@ -475,6 +728,7 @@ fun BiovarmenneApp(
                     if (it.length <= 8 && it.all { c -> c.isDigit() }) confirmPin = it
                 },
                 label = { Text(stringResource(R.string.pin_confirm_label)) },
+                leadingIcon = { Icon(Icons.Default.Password, contentDescription = null) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 singleLine = true,
@@ -484,15 +738,28 @@ fun BiovarmenneApp(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (statusMessage.isNotEmpty()) {
-                Text(
-                    text = statusMessage,
-                    color = if (isError)
-                        MaterialTheme.colorScheme.error
-                    else
-                        MaterialTheme.colorScheme.primary,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        if (isError) Icons.Default.Error else Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = statusMessage,
+                        color = if (isError)
+                            MaterialTheme.colorScheme.error
+                        else
+                            MaterialTheme.colorScheme.primary,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -519,37 +786,28 @@ fun BiovarmenneApp(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Icon(Icons.Default.Save, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(stringResource(R.string.button_save_pin))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             if (hasPin) {
-                OutlinedButton(
+                Button(
                     onClick = {
-                        pinStorage.clearPin()
-                        hasPin = false
-                        pin = ""
-                        confirmPin = ""
-                        statusMessage = bPinCleared
-                        isError = false
+                        showClearPinDialog = true
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
                 ) {
+                    Icon(Icons.Default.Delete, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.button_clear_pin))
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            if (!isAccessibilityServiceEnabled) {
-                OutlinedButton(
-                    onClick = { showDisclosureDialog = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.button_accessibility_settings))
-                }
-
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -558,9 +816,22 @@ fun BiovarmenneApp(
                     onClick = onOpenBatterySettings,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    Icon(Icons.Default.BatteryChargingFull, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.button_battery_settings))
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
+            if (!isAccessibilityServiceEnabled) {
+                OutlinedButton(
+                    onClick = { showDisclosureDialog = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.AccessibilityNew, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.button_accessibility_settings))
+                }
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -579,6 +850,8 @@ fun BiovarmenneApp(
                     onClick = onOpenAppInfoSettings,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    Icon(Icons.AutoMirrored.Filled.Launch, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.button_popup_settings))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -586,6 +859,8 @@ fun BiovarmenneApp(
                     onClick = onOpenAutostartSettings,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    Icon(Icons.Default.SettingsSuggest, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.button_autostart_settings))
                 }
                 Spacer(modifier = Modifier.height(8.dp))

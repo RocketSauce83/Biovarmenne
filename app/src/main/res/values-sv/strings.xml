@@ -5,7 +5,7 @@
     <string name="status_pin_saved">✓ Mobiilivarmenne PIN-kod sparad</string>
     <string name="status_pin_missing">⚠ Mobiilivarmenne PIN-kod har inte angetts</string>
     <string name="pin_input_label">Mobiilivarmenne PIN-kod</string>
-    <string name="pin_confirm_label">Bekräfta Mobiilivarmenne PIN-kod</string>
+    <string name="pin_confirm_label">Bekräfta PIN-kod</string>
     <string name="error_pin_too_short">PIN-koden måste vara minst 4 siffror</string>
     <string name="error_pin_mismatch">PIN-koderna stämmer inte överens</string>
     <string name="success_pin_saved">Mobiilivarmenne PIN-kod har sparats!</string>
@@ -37,8 +37,24 @@
     <string name="update_downloaded">Uppdatering nedladdad och redo att installeras</string>
     <string name="update_restart">Starta om</string>
     <string name="toggle_enabled">Biovarmenne aktiverad</string>
+    <string name="toggle_disabled">Biovarmenne inaktiverad</string>
     <string name="notification_service_stopped_title">Biovarmenne körs inte</string>
     <string name="notification_service_stopped_message">Tryck för att återaktivera tillgänglighetstjänsten</string>
     <string name="notification_channel_service_name">Tjänstestatus</string>
     <string name="notification_channel_service_desc">Biovarmenne tjänstestatusaviseringar</string>
+    <string name="dialog_clear_pin_title">Rensa PIN-kod</string>
+    <string name="dialog_clear_pin_message">Är du säker på att du vill ta bort den sparade PIN-koden?</string>
+    <string name="wizard_welcome_desc">Biovarmenne gör Mobiilivarmenne autentiseringen säker, smidig och lätt att använda.\n\nDen här guiden hjälper dig att konfigurera nödvändiga inställningar så att du slipper skriva in din PIN-kod manuellt.</string>
+    <string name="wizard_battery_title">Inaktivera batterioptimering</string>
+    <string name="wizard_battery_desc">För att Biovarmenne ska kunna upptäcka Mobiilivarmenne-förfrågningar automatiskt måste den kunna köras fritt i bakgrunden. Appens påverkan på batteriförbrukningen är dock mycket minimal.\n\nTryck på knappen nedan och inaktivera batterioptimeringen.</string>
+    <string name="wizard_miui_title">Xiaomi &amp; POCO</string>
+    <string name="wizard_miui_desc">Din enhet kräver två ytterligare inställningar för att fungera:\n\n1. Visa popup-fönster medan appen körs i bakgrunden.\n2. Tillåt Autostart.</string>
+    <string name="wizard_accessibility_title">Tillgänglighet</string>
+    <string name="wizard_accessibility_desc">Biovarmenne använder tillgänglighetstjänsten för att upptäcka när en PIN-kod begärs.\n\nTjänsten övervakar endast Mobiilivarmenne-skärmen. Ingen data samlas in eller överförs.</string>
+    <string name="wizard_pin_title">PIN-kod</string>
+    <string name="wizard_pin_desc">Ange slutligen samma PIN-kod som du använder i Mobiilivarmenne. Den sparas säkert på din enhet med AES-256-kryptering och lämnar aldrig din telefon.</string>
+    <string name="button_update_pin">Uppdatera PIN-kod</string>
+    <string name="wizard_skip">Hoppa över</string>
+    <string name="wizard_next">Nästa</string>
+    <string name="wizard_finish">Slutför</string>
 </resources>

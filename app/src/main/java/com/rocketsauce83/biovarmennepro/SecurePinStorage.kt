@@ -21,6 +21,8 @@ class SecurePinStorage(context: Context) {
         private const val IV_KEY = "user_pin_iv"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
         private const val GCM_TAG_LENGTH = 128
+
+        private const val ONBOARDING_COMPLETED_KEY = "onboarding_completed"
     }
 
     private val prefs = context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE)
@@ -132,5 +134,13 @@ class SecurePinStorage(context: Context) {
                 // ignore
             }
         }
+    }
+
+    fun setOnboardingCompleted(completed: Boolean) {
+        prefs.edit { putBoolean(ONBOARDING_COMPLETED_KEY, completed) }
+    }
+
+    fun isOnboardingCompleted(): Boolean {
+        return prefs.getBoolean(ONBOARDING_COMPLETED_KEY, false)
     }
 }

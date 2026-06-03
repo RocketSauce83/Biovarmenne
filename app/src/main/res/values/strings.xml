@@ -5,7 +5,7 @@
     <string name="status_pin_saved">✓ Mobiilivarmenne PIN code saved</string>
     <string name="status_pin_missing">⚠ Mobiilivarmenne PIN code not set</string>
     <string name="pin_input_label">Mobiilivarmenne PIN code</string>
-    <string name="pin_confirm_label">Confirm Mobiilivarmenne PIN code</string>
+    <string name="pin_confirm_label">Confirm PIN</string>
     <string name="error_pin_too_short">PIN code must be at least 4 digits</string>
     <string name="error_pin_mismatch">PIN codes do not match</string>
     <string name="success_pin_saved">Mobiilivarmenne PIN code saved successfully!</string>
@@ -37,8 +37,24 @@
     <string name="update_downloaded">Update downloaded and ready to install</string>
     <string name="update_restart">Restart</string>
     <string name="toggle_enabled">Biovarmenne enabled</string>
+    <string name="toggle_disabled">Biovarmenne disabled</string>
     <string name="notification_service_stopped_title">Biovarmenne is not running</string>
     <string name="notification_service_stopped_message">Tap to re-enable accessibility service</string>
     <string name="notification_channel_service_name">Service status</string>
     <string name="notification_channel_service_desc">Biovarmenne service status notifications</string>
+    <string name="dialog_clear_pin_title">Clear PIN</string>
+    <string name="dialog_clear_pin_message">Are you sure you want to clear the saved PIN?</string>
+    <string name="wizard_welcome_desc">Biovarmenne makes Mobiilivarmenne authentication secure, effortless, and easy to use.\n\nThis wizard will help you set up the necessary settings so you can stop manually typing your PIN code.</string>
+    <string name="wizard_battery_title">Disable battery optimization</string>
+    <string name="wizard_battery_desc">For Biovarmenne to automatically detect Mobiilivarmenne requests, it needs to run freely in the background. The app\'s impact on battery consumption is minimal.\n\nTap the button below and disable battery optimization.</string>
+    <string name="wizard_miui_title">Xiaomi &amp; POCO</string>
+    <string name="wizard_miui_desc">Your device requires two additional settings to work:\n\n1. Display pop-up windows while running in the background.\n2. Enable Autostart.</string>
+    <string name="wizard_accessibility_title">Accessibility</string>
+    <string name="wizard_accessibility_desc">Biovarmenne uses the accessibility service to detect when a PIN code is requested.\n\nThe service only monitors the Mobiilivarmenne screen. No data is collected or transmitted.</string>
+    <string name="wizard_pin_title">PIN Code</string>
+    <string name="wizard_pin_desc">Finally, enter the same PIN code you use for Mobiilivarmenne. It will be securely stored on your device using AES-256 encryption and will never leave your phone.</string>
+    <string name="button_update_pin">Update PIN code</string>
+    <string name="wizard_skip">Skip</string>
+    <string name="wizard_next">Next</string>
+    <string name="wizard_finish">Finish</string>
 </resources>

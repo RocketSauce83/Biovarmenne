@@ -5,7 +5,7 @@
     <string name="status_pin_saved">✓ Mobiilivarmenne-tunnusluku tallennettu</string>
     <string name="status_pin_missing">⚠ Mobiilivarmenne-tunnuslukua ei ole asetettu</string>
     <string name="pin_input_label">Mobiilivarmenne-tunnusluku</string>
-    <string name="pin_confirm_label">Vahvista Mobiilivarmenne-tunnusluku</string>
+    <string name="pin_confirm_label">Vahvista tunnusluku</string>
     <string name="error_pin_too_short">Tunnusluvun on oltava vähintään 4 numeroa</string>
     <string name="error_pin_mismatch">Tunnusluvut eivät täsmää</string>
     <string name="success_pin_saved">Mobiilivarmenne-tunnusluku tallennettu onnistuneesti!</string>
@@ -37,8 +37,24 @@
     <string name="update_downloaded">Päivitys ladattu ja valmis asennettavaksi</string>
     <string name="update_restart">Käynnistä uudelleen</string>
     <string name="toggle_enabled">Biovarmenne käytössä</string>
+    <string name="toggle_disabled">Biovarmenne ei käytössä</string>
     <string name="notification_service_stopped_title">Biovarmenne ei ole käynnissä</string>
     <string name="notification_service_stopped_message">Napauta ottaaksesi esteettömyyspalvelun uudelleen käyttöön</string>
     <string name="notification_channel_service_name">Palvelun tila</string>
     <string name="notification_channel_service_desc">Biovarmenne palvelun tilailmoitukset</string>
+    <string name="dialog_clear_pin_title">Poista PIN-koodi</string>
+    <string name="dialog_clear_pin_message">Haluatko varmasti poistaa tallennetun PIN-koodin?</string>
+    <string name="wizard_welcome_desc">Biovarmenne tekee Mobiilivarmenne tunnistautumisesta turvallista, vaivatonta ja helppokäyttöistä.\n\nTämä ohjattu toiminto auttaa sinua laittamaan tarvittavat asetukset kuntoon, jotta pääset eroon manuaalisesta PIN-koodin näppäilystä.</string>
+    <string name="wizard_battery_title">Virransäästö pois</string>
+    <string name="wizard_battery_desc">Jotta Biovarmenne voi tunnistaa Mobiilivarmenteen pyynnöt automaattisesti, sen täytyy saada toimia vapaasti taustalla. Sovelluksen vaikutus akun kulutukseen on erittäin minimaalinen.\n\nNapauta alla olevaa painiketta ja poista akun optimointi käytöstä.</string>
+    <string name="wizard_miui_title">Xiaomi &amp; POCO</string>
+    <string name="wizard_miui_desc">Laitteesi vaatii kaksi lisäasetusta toimiakseen:\n\n1. Salli uusien ikkunoiden avaaminen taustalla.\n2. Salli sovelluksen automaattinen käynnistys.</string>
+    <string name="wizard_accessibility_title">Esteettömyys</string>
+    <string name="wizard_accessibility_desc">Biovarmenne havaitsee esteettömyyspalvelun avulla, milloin PIN-koodia kysytään.\n\nPalvelu tarkkailee ainoastaan Mobiilivarmenteen ruutua. Tietoja ei kerätä tai välitetä eteenpäin.</string>
+    <string name="wizard_pin_title">Tunnusluku</string>
+    <string name="wizard_pin_desc">Syötä lopuksi sama PIN-koodi, jota käytät Mobiilivarmenteessa. Se tallennetaan laitteellesi vahvasti salattuna AES-256-standardilla, eikä se koskaan poistu puhelimestasi.</string>
+    <string name="button_update_pin">Päivitä tunnusluku</string>
+    <string name="wizard_skip">Ohita</string>
+    <string name="wizard_next">Seuraava</string>
+    <string name="wizard_finish">Valmis</string>
 </resources>
