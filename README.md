@@ -37,7 +37,7 @@ of promises. 😄
 
 - 🔐 Fingerprint and face authentication
 - 🔒 PIN encrypted with Android Keystore (AES-256)
-- 🇫🇮 Works with all major Finnish operators (Telia, Elisa, DNA)
+- 🇫🇮 Works with all major Finnish operators (Telia, Elisa, DNA, Moi Mobiili, Oomi Mobiili and Giga Mobiili)
 - 🌍 Available in Finnish, Swedish and English
 - 📱 Works when device is locked
 - ⚡ Synced with Mobiilivarmenne's 30 second timeout
