@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 class BiovarmenneAccessibilityService : AccessibilityService() {
 
     companion object {
-        private const val STK_PACKAGE = "com.android.stk"
+        private val STK_PACKAGES = listOf("com.android.stk", "com.android.stk2")
         private const val NOTIFICATION_CHANNEL_ID = "biovarmenne_wrong_pin"
         const val NOTIFICATION_CHANNEL_SERVICE_ID = "biovarmenne_service_status"
         private const val NOTIFICATION_ID = 1001
@@ -70,7 +70,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
         serviceInfo = serviceInfo.apply {
             eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
                     AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
-            packageNames = arrayOf(STK_PACKAGE)
+            packageNames = STK_PACKAGES.toTypedArray()
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
         }
@@ -114,7 +114,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
         if (BuildConfig.DEBUG) {
             android.util.Log.d("Biovarmenne", "Event received: ${event.packageName}")
         }
-        if (event.packageName != STK_PACKAGE) return
+        if (event.packageName?.toString() !in STK_PACKAGES) return
         if (isBiometricPromptShowing) return
         if (isCancelling) return
 
@@ -162,7 +162,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
 
                 val packageName = rootNode.packageName?.toString()
 
-                if (packageName != STK_PACKAGE) {
+                if (packageName !in STK_PACKAGES) {
                     if (attempts < maxAttempts) handler.postDelayed(this, 300)
                     else isBiometricPromptShowing = false
                     return
@@ -201,7 +201,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
             return
         }
 
-        if (rootNode.packageName?.toString() == STK_PACKAGE &&
+        if (STK_PACKAGES.contains(rootNode.packageName?.toString()) &&
             isPinPromptVisible(rootNode)) {
             isBiometricPromptShowing = false
             showWrongPinNotification()
@@ -316,7 +316,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
 
                 val packageName = rootNode.packageName?.toString()
 
-                if (packageName != STK_PACKAGE) {
+                if (packageName !in STK_PACKAGES) {
                     if (attempts < maxAttempts) handler.postDelayed(this, 200)
                     else isBiometricPromptShowing = false
                     return
