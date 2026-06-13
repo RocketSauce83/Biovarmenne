@@ -40,13 +40,14 @@ of promises. 😄
 - 🇫🇮 Works with all major Finnish operators (Telia, Elisa, DNA, Moi Mobiili, Oomi Mobiili and Giga Mobiili)
 - 🌍 Available in Finnish, Swedish and English
 - 📱 Works when device is locked
-- ⚡ Synced with Mobiilivarmenne's 30 second timeout
+- ⚡ Synced with Mobiilivarmenne's 30-second timeout
 - 🚫 Cancel button properly rejects spam authentication requests
 - 🔋 Battery optimization guidance built in
 - 🔔 Notifications if wrong PIN or service stops unexpectedly
 - ⚙️ Toggle to quickly enable/disable without touching system settings
 - 🔄 Automatic check after device restart
 - 📲 Xiaomi/MIUI support with dedicated setup guidance
+- 📱 Seamless support for Samsung Galaxy devices (One UI) and their custom SIM Toolkit
 
 ## Requirements
 
@@ -84,7 +85,9 @@ Open in Android Studio, build and install.
 
 Your PIN code never leaves your device. It is stored using Android Keystore 
 backed AES-256-GCM encryption. The Accessibility Service only monitors the 
-Mobiilivarmenne SIM Toolkit window (`com.android.stk`) and nothing else.
+Mobiilivarmenne SIM Toolkit window (`com.android.stk`) and Samsung's SIM Toolkit
+window (`com.android.stk2`), and nothing else.
+
 
 Biovarmenne is open source — you can verify every line of code yourself.
 
