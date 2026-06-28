@@ -554,6 +554,9 @@ fun MainStatusScreen(
                         statusMessage = bPinCleared
                         isError = false
                         showClearPinDialog = false
+
+                        isEnabled = false
+                        pinStorage.setEnabled(false)
                     }
                 ) {
                     Text(stringResource(R.string.dialog_confirm))
