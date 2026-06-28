@@ -30,10 +30,8 @@ class SecurePinStorage(context: Context) {
     private fun getOrCreateKey(): SecretKey {
         val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
 
-        // Return existing key if available
         keyStore.getKey(KEY_ALIAS, null)?.let { return it as SecretKey }
 
-        // Create new key
         val keyGenerator = KeyGenerator.getInstance(
             KeyProperties.KEY_ALGORITHM_AES,
             KEYSTORE_PROVIDER
@@ -78,7 +76,6 @@ class SecurePinStorage(context: Context) {
                 putString(IV_KEY, Base64.encodeToString(iv, Base64.DEFAULT))
             }
         } catch (_: Exception) {
-            // Encryption failed
         }
     }
 
@@ -108,14 +105,12 @@ class SecurePinStorage(context: Context) {
             remove(PIN_KEY)
             remove(IV_KEY)
         }
-        // Also delete the keystore key
         try {
             val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
             if (keyStore.containsAlias(KEY_ALIAS)) {
                 keyStore.deleteEntry(KEY_ALIAS)
             }
         } catch (_: Exception) {
-            // Key deletion failed
         }
     }
 
@@ -131,7 +126,6 @@ class SecurePinStorage(context: Context) {
                 val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
                 keyStore.deleteEntry(KEY_ALIAS)
             } catch (_: Exception) {
-                // ignore
             }
         }
     }

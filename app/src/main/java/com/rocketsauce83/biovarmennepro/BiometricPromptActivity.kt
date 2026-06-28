@@ -51,15 +51,11 @@ class BiometricPromptActivity : AppCompatActivity() {
             }
 
             override fun onAuthenticationFailed() {
-                // BiometricPrompt handles retry UI automatically
             }
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                // 1. Tell the service to handle the STK cancellation and its own 2000ms cooldown
                 BiovarmenneEvents.sendCancelStk()
 
-                // 2. Immediately finish this activity so STK becomes the active window again.
-                // Do NOT send resetGuard here, as it will overwrite the service's cooldown.
                 finish()
             }
         }

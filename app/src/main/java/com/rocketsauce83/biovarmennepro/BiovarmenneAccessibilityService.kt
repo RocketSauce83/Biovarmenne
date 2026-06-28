@@ -87,7 +87,6 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
     private fun createNotificationChannel() {
         val notificationManager = getSystemService(NotificationManager::class.java)
 
-        // Existing wrong PIN channel
         notificationManager.createNotificationChannel(
             NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
@@ -221,7 +220,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
         )
 
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.bio_icon)
             .setContentTitle(getString(R.string.notification_wrong_pin_title))
             .setContentText(getString(R.string.notification_wrong_pin_message))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -250,7 +249,7 @@ class BiovarmenneAccessibilityService : AccessibilityService() {
         )
 
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_SERVICE_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.bio_icon)
             .setContentTitle(getString(R.string.notification_service_stopped_title))
             .setContentText(getString(R.string.notification_service_stopped_message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

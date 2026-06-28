@@ -19,16 +19,12 @@ class BootReceiver : BroadcastReceiver() {
 
             val pinStorage = SecurePinStorage(context)
 
-            // If the user has toggled the app off, do nothing
             if (!pinStorage.isEnabled()) return
 
-            // If the app is enabled but the accessibility service is disabled in settings, warn the user
             if (!isAccessibilityServiceEnabled(context)) {
                 showServiceStoppedNotification(context)
             }
 
-            // Note: If both are enabled, merely executing this receiver is enough
-            // to wake the app process, prompting Android to initialize the AccessibilityService.
         }
     }
 
@@ -52,7 +48,7 @@ class BootReceiver : BroadcastReceiver() {
 
         val notification = NotificationCompat.Builder(context,
             BiovarmenneAccessibilityService.NOTIFICATION_CHANNEL_SERVICE_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.bio_icon)
             .setContentTitle(context.getString(R.string.notification_service_stopped_title))
             .setContentText(context.getString(R.string.notification_service_stopped_message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

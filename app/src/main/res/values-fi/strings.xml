@@ -57,4 +57,6 @@
     <string name="wizard_skip">Ohita</string>
     <string name="wizard_next">Seuraava</string>
     <string name="wizard_finish">Valmis</string>
+    <string name="hide_password">Piilota tunnusluku</string>
+    <string name="show_password">Näytä tunnusluku</string>
 </resources>

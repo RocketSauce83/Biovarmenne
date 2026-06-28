@@ -2,15 +2,20 @@ package com.rocketsauce83.biovarmennepro
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,6 +24,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,15 +32,20 @@ import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.getSystemService
@@ -49,6 +60,8 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
 import com.rocketsauce83.biovarmennepro.ui.theme.BiovarmenneTheme
+import com.rocketsauce83.biovarmennepro.ui.theme.RobotoFlexHeadline
+import com.rocketsauce83.biovarmennepro.ui.theme.RobotoFlexSubtitle
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -107,7 +120,21 @@ class MainActivity : ComponentActivity() {
                         appUpdateManager.completeUpdate()
                     },
                     onOpenAccessibilitySettings = {
-                        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+
+                        val componentName = android.content.ComponentName(
+                            this@MainActivity,
+                            BiovarmenneAccessibilityService::class.java
+                        ).flattenToString()
+
+                        intent.putExtra(":settings:fragment_args_key", componentName)
+
+                        val bundle = Bundle().apply {
+                            putString(":settings:fragment_args_key", componentName)
+                        }
+                        intent.putExtra(":settings:show_fragment_args", bundle)
+
+                        startActivity(intent)
                     },
                     onOpenBatterySettings = {
                         batteryOptimizationLauncher.launch(
@@ -194,10 +221,26 @@ fun StatusCard(
     text: String,
     isOk: Boolean,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    animTrigger: Int = 0
 ) {
+    val scale = remember { Animatable(1f) }
+
+    LaunchedEffect(animTrigger) {
+        if (animTrigger > 0) {
+            scale.animateTo(1.05f, animationSpec = tween(100))
+            scale.animateTo(0.95f, animationSpec = tween(100))
+            scale.animateTo(1f, animationSpec = spring(
+                dampingRatio = Spring.DampingRatioHighBouncy,
+                stiffness = Spring.StiffnessMedium
+            ))
+        }
+    }
+
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .scale(scale.value),
         colors = CardDefaults.cardColors(
             containerColor = if (isOk)
                 MaterialTheme.colorScheme.primaryContainer
@@ -439,6 +482,9 @@ fun MainStatusScreen(
     val updRestart = stringResource(R.string.update_restart)
     val bPinCleared = stringResource(R.string.status_pin_cleared)
 
+    var accessibilityAnimTrigger by remember { mutableIntStateOf(0) }
+    var pinAnimTrigger by remember { mutableIntStateOf(0) }
+
     LaunchedEffect(updateDownloaded) {
         if (updateDownloaded) {
             val result = snackbarHostState.showSnackbar(
@@ -453,6 +499,8 @@ fun MainStatusScreen(
     }
 
     var pin by remember { mutableStateOf("") }
+    var pinVisible by remember { mutableStateOf(false) }
+    var confirmPinVisible by remember { mutableStateOf(false) }
     var confirmPin by remember { mutableStateOf("") }
     var hasPin by remember { mutableStateOf(pinStorage.hasPin()) }
     var statusMessage by remember { mutableStateOf("") }
@@ -477,7 +525,14 @@ fun MainStatusScreen(
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                 isBatteryOptimizationIgnored =
                     powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
-                isAccessibilityServiceEnabled = isAccessibilityServiceEnabled(context)
+
+                val serviceEnabledNow = isAccessibilityServiceEnabled(context)
+                isAccessibilityServiceEnabled = serviceEnabledNow
+
+                if (!serviceEnabledNow && isEnabled) {
+                    isEnabled = false
+                    pinStorage.setEnabled(false)
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -540,27 +595,43 @@ fun MainStatusScreen(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.app_name),
-                            maxLines = 1,
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.headlineMedium,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(end = 16.dp),
-                            textAlign = TextAlign.Center,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp)
+                    ) {
+
+                        AppIcon(
+                            modifier = Modifier.padding(end = 16.dp)
                         )
-                        Text(
-                            text = stringResource(R.string.app_subtitle),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(end = 16.dp),
-                            textAlign = TextAlign.Center
-                        )
+
+                        Column(
+                            verticalArrangement = Arrangement.Top
+                        ) {
+                            Text(
+                                text = stringResource(R.string.app_name).uppercase(),
+                                maxLines = 1,
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.headlineMedium.copy(
+                                    fontFamily = RobotoFlexHeadline,
+                                    lineHeight = 26.sp,
+                                    platformStyle = PlatformTextStyle(
+                                        includeFontPadding = false
+                                    )
+                                )
+                            )
+                            Text(
+                                text = stringResource(R.string.app_subtitle),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontFamily = RobotoFlexSubtitle,
+                                    platformStyle = PlatformTextStyle(
+                                        includeFontPadding = false
+                                    )
+                                )
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -600,8 +671,29 @@ fun MainStatusScreen(
                 Switch(
                     checked = isEnabled,
                     onCheckedChange = { enabled ->
-                        isEnabled = enabled
-                        pinStorage.setEnabled(enabled)
+                        if (enabled) {
+                            val missingAccessibility = !isAccessibilityServiceEnabled
+                            val missingPin = !hasPin
+
+                            if (missingAccessibility || missingPin) {
+                                playBounceHaptic(context)
+                            }
+
+                            if (missingAccessibility) {
+                                accessibilityAnimTrigger++
+                            }
+                            if (missingPin) {
+                                pinAnimTrigger++
+                            }
+
+                            if (!missingAccessibility && !missingPin) {
+                                isEnabled = true
+                                pinStorage.setEnabled(true)
+                            }
+                        } else {
+                            isEnabled = false
+                            pinStorage.setEnabled(false)
+                        }
                     },
                     thumbContent = {
                         if (isEnabled) {
@@ -627,7 +719,8 @@ fun MainStatusScreen(
                 text = if (hasPin) stringResource(R.string.status_pin_saved)
                 else stringResource(R.string.status_pin_missing),
                 isOk = hasPin,
-                icon = if (hasPin) Icons.Default.Lock else Icons.Default.LockOpen
+                icon = if (hasPin) Icons.Default.Lock else Icons.Default.LockOpen,
+                animTrigger = pinAnimTrigger
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -649,7 +742,8 @@ fun MainStatusScreen(
                 else
                     stringResource(R.string.status_accessibility_disabled),
                 isOk = isAccessibilityServiceEnabled,
-                icon = Icons.Default.AccessibilityNew
+                icon = Icons.Default.AccessibilityNew,
+                animTrigger = accessibilityAnimTrigger
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -709,92 +803,128 @@ fun MainStatusScreen(
             val ePinMismatch = stringResource(R.string.error_pin_mismatch)
             val sPinSaved = stringResource(R.string.success_pin_saved)
 
-            OutlinedTextField(
-                value = pin,
-                onValueChange = {
-                    if (it.length <= 8 && it.all { c -> c.isDigit() }) pin = it
-                },
-                label = { Text(stringResource(R.string.pin_input_label)) },
-                supportingText = { Text(stringResource(R.string.pin_input_helper)) },
-                leadingIcon = { Icon(Icons.Default.Password, contentDescription = null) },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (!hasPin) {
+                OutlinedTextField(
+                    value = pin,
+                    onValueChange = {
+                        if (it.length <= 8 && it.all { c -> c.isDigit() }) pin = it
+                    },
+                    label = { Text(stringResource(R.string.pin_input_label)) },
+                    supportingText = { Text(stringResource(R.string.pin_input_helper)) },
+                    leadingIcon = { Icon(Icons.Default.Password, contentDescription = null) },
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    trailingIcon = {
+                        val image =
+                            if (pinVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        val description =
+                            if (pinVisible) stringResource(R.string.hide_password) else stringResource(
+                                R.string.show_password
+                            )
 
-            OutlinedTextField(
-                value = confirmPin,
-                onValueChange = {
-                    if (it.length <= 8 && it.all { c -> c.isDigit() }) confirmPin = it
-                },
-                label = { Text(stringResource(R.string.pin_confirm_label)) },
-                leadingIcon = { Icon(Icons.Default.Password, contentDescription = null) },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+                        IconButton(onClick = { pinVisible = !pinVisible }) {
+                            Icon(imageVector = image, contentDescription = description)
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    visualTransformation = if (pinVisible) VisualTransformation.None else PasswordVisualTransformation(),
 
-            if (statusMessage.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        if (isError) Icons.Default.Error else Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = statusMessage,
-                        color = if (isError)
-                            MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.primary,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = confirmPin,
+                    onValueChange = {
+                        if (it.length <= 8 && it.all { c -> c.isDigit() }) confirmPin = it
+                    },
+                    label = { Text(stringResource(R.string.pin_confirm_label)) },
+                    leadingIcon = { Icon(Icons.Default.Password, contentDescription = null) },
+
+                    trailingIcon = {
+                        val image =
+                            if (pinVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        val description =
+                            if (pinVisible) stringResource(R.string.hide_password) else stringResource(
+                                R.string.show_password
+                            )
+
+                        IconButton(onClick = { pinVisible = !pinVisible }) {
+                            Icon(imageVector = image, contentDescription = description)
+                        }
+                    },
+
+                    shape = RoundedCornerShape(12.dp),
+
+                    visualTransformation = if (pinVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (statusMessage.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            if (isError) Icons.Default.Error else Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = statusMessage,
+                            color = if (isError)
+                                MaterialTheme.colorScheme.error
+                            else
+                                MaterialTheme.colorScheme.primary,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
+
+                Button(
+                    onClick = {
+                        when {
+                            pin.length < 4 -> {
+                                statusMessage = ePinTooShort
+                                isError = true
+                            }
+
+                            pin != confirmPin -> {
+                                statusMessage = ePinMismatch
+                                isError = true
+                            }
+
+                            else -> {
+                                pinStorage.savePin(pin)
+                                hasPin = true
+                                pin = ""
+                                confirmPin = ""
+                                statusMessage = sPinSaved
+                                isError = false
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Save, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.button_save_pin))
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
             }
-
-            Button(
-                onClick = {
-                    when {
-                        pin.length < 4 -> {
-                            statusMessage = ePinTooShort
-                            isError = true
-                        }
-                        pin != confirmPin -> {
-                            statusMessage = ePinMismatch
-                            isError = true
-                        }
-                        else -> {
-                            pinStorage.savePin(pin)
-                            hasPin = true
-                            pin = ""
-                            confirmPin = ""
-                            statusMessage = sPinSaved
-                            isError = false
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Save, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.button_save_pin))
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             if (hasPin) {
                 Button(
@@ -871,5 +1001,43 @@ fun MainStatusScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
         }
+    }
+}
+
+fun playBounceHaptic(context: Context) {
+    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibratorManager.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+
+    if (vibrator.hasVibrator()) {
+        val timings = longArrayOf(0, 30, 70, 20)
+        val amplitudes = intArrayOf(0, 255, 0, 80)
+        vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
+    }
+}
+
+@Composable
+fun AppIcon(modifier: Modifier = Modifier) {
+
+    val iconColor = MaterialTheme.colorScheme.onSurface
+    val iconSize = 48.dp
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+
+    ) {
+            Icon(
+                painter = painterResource(id = R.drawable.bio_icon),
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier
+                    .size(iconSize)
+            )
+
     }
 }

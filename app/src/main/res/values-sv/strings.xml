@@ -57,4 +57,6 @@
     <string name="wizard_skip">Hoppa över</string>
     <string name="wizard_next">Nästa</string>
     <string name="wizard_finish">Slutför</string>
+    <string name="hide_password">Dölj PIN-kod</string>
+    <string name="show_password">Visa PIN-kod</string>
 </resources>

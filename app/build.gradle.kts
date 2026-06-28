@@ -12,8 +12,8 @@ android {
         minSdk = 30
         targetSdk = 36
 
-        versionCode = 13
-        versionName = "1.0.13"
+        versionCode = 15
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -69,4 +69,23 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.google.app.update)
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                val baseName = "Biovarmenne"
+                val version = android.defaultConfig.versionName
+                val buildType = variant.name
+
+                output.outputFileName.set("${baseName}-v${version}-${buildType}.apk")
+            }
+        }
+    }
+}
+
+base {
+    val version = android.defaultConfig.versionName ?: "1.0.0"
+    archivesName.set("Biovarmenne-v$version")
 }
